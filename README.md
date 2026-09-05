@@ -45,8 +45,24 @@ Access**. Most PaaS providers give no fixed egress IP on lower tiers, so
 connection-string password the only thing guarding the database. Use a strong
 one, and rotate it if it has ever been pasted anywhere.
 
-`FRONTEND_URL` accepts a comma-separated list, so the deployed site and a
-preview build can both be allowed without a code change.
+**3. The browser blocks the API with a bare "CORS error".** That means the
+deployed site's origin isn't in `FRONTEND_URL`. Set it to the frontend's
+origin — the server log names the rejected origin and lists what it currently
+allows, so you never have to guess.
+
+```
+FRONTEND_URL=https://your-site.netlify.app
+FRONTEND_URL=https://your-site.netlify.app,*.netlify.app   # + preview deploys
+```
+
+Comma-separated, and normalised on load — a trailing slash pasted from the
+address bar still matches, since a browser's `Origin` header never has one. A
+leading `*.` trusts every subdomain of that host, so only use it for a domain
+you control.
+
+Don't forget the other side: the frontend needs `VITE_BASE_URL` pointed at the
+deployed API **at build time**, not runtime — Vite inlines it into the bundle,
+so changing it requires a rebuild.
 
 Boot order is deliberate: **config is validated, then the port is bound, then
 the database connects with retries.** Listening first means a database blip

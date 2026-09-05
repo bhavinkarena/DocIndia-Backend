@@ -9,17 +9,24 @@ const appConfig = {
   frontendUrl: process.env.FRONTEND_URL || "http://localhost:5173",
   /**
    * FRONTEND_URL accepts a comma-separated list, so a deployed API can serve
-   * both the production site and a preview build without a code change.
-   * Localhost stays allowed for development.
+   * the production site and a preview build without a code change.
+   *
+   * Entries are normalised because a browser Origin header never has a
+   * trailing slash or a path — pasting "https://site.app/" out of the address
+   * bar would otherwise never match, and the failure looks identical to
+   * having set nothing at all.
+   *
+   * A leading "*." allows subdomains (e.g. "*.netlify.app" for preview
+   * deploys). That is deliberately opt-in: it trusts every subdomain of that
+   * host, so only use it for a domain you control.
    */
   allowedOrigins: [
-    ...(process.env.FRONTEND_URL || "")
-      .split(",")
-      .map((o) => o.trim())
-      .filter(Boolean),
+    ...(process.env.FRONTEND_URL || "").split(","),
     "http://localhost:5173",
     "http://localhost:5174",
-  ],
+  ]
+    .map((o) => o.trim().toLowerCase().replace(/\/+$/, ""))
+    .filter(Boolean),
   emailUser: process.env.EMAIL_USER,
   emailPass: process.env.EMAIL_PASS,
   emailFrom: process.env.EMAIL_FROM || "DocuIndia <no-reply@docuindia.local>",

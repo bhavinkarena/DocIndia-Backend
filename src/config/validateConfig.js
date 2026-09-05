@@ -32,7 +32,7 @@ const validateConfig = () => {
   console.log("Config OK");
   console.log(`  database : ${appConfig.mongoDBName}`);
   console.log(`  mongo    : ${redact(appConfig.mongoURI)}`);
-  console.log(`  frontend : ${appConfig.frontendUrl}`);
+  console.log(`  origins  : ${appConfig.allowedOrigins.join(", ")}`);
   console.log(`  email    : ${appConfig.emailUser ? "SMTP configured" : "console-log mode"}`);
 };
 

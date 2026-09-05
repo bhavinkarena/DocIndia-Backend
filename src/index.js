@@ -10,13 +10,38 @@ const startCronJobs = require("./cronjob");
 
 const app = express();
 
+/**
+ * Matches an Origin against the allowlist. Supports a leading "*." to cover
+ * preview subdomains — see the note in appConfig.
+ */
+const originAllowed = (origin) => {
+  const candidate = origin.toLowerCase().replace(/\/+$/, "");
+
+  return allowedOrigins.some((allowed) => {
+    if (allowed === candidate) return true;
+    if (!allowed.startsWith("*.")) return false;
+
+    // "*.netlify.app" → matches "https://anything.netlify.app"
+    const suffix = allowed.slice(1);
+    const host = candidate.replace(/^https?:\/\//, "");
+    return host.endsWith(suffix);
+  });
+};
+
 app.use(
   cors({
     origin: (origin, callback) => {
       // No origin: curl, health checks, same-origin server calls.
       if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error(`Origin not allowed by CORS: ${origin}`));
+      if (originAllowed(origin)) return callback(null, true);
+
+      // A browser only reports "CORS error" with no detail, so say plainly
+      // in the server log what was rejected and how to permit it.
+      console.warn(
+        `CORS rejected origin: ${origin}\n` +
+          `  → add it to FRONTEND_URL (comma-separated). Currently allowing: ${allowedOrigins.join(", ")}`
+      );
+      return callback(null, false);
     },
     credentials: true,
   })
