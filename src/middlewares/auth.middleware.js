@@ -11,6 +11,14 @@ const resolveUser = async (req) => {
   if (!token) return null;
 
   const decoded = verifyToken(token);
+
+  // Refresh tokens are opaque strings, not JWTs, so one can never verify here
+  // in the first place. This is belt and braces for the day someone adds a
+  // second kind of JWT — an email confirmation link, say — and it must not
+  // quietly double as a login. Tokens with no `type` are accepted so that
+  // sessions issued before this field existed keep working.
+  if (decoded.type && decoded.type !== "access") return null;
+
   const user = await User.findOne({
     _id: decoded.userId,
     isDeleted: false,

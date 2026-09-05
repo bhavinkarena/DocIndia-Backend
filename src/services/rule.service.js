@@ -4,6 +4,10 @@ const GovService = require("../models/govService.model");
 const DocumentModel = require("../models/document.model");
 const Checklist = require("../models/checklist.model");
 const Changelog = require("../models/changelog.model");
+const User = require("../models/user.model");
+const { sendChecklistUpdatedEmail } = require("./email.service");
+const logger = require("../utils/logger");
+const checklistCache = require("../utils/checklistCache");
 const { serviceHandler } = require("../utils/asyncHandler");
 const {
   upsertRuleSchema,
@@ -64,6 +68,53 @@ const summariseDiff = (previous, next) => {
     removed: [...before].filter((id) => !after.has(id)),
     modified: [],
   };
+};
+
+/**
+ * Tells people their saved checklist is behind. Flagging it in the database is
+ * only half the job — nobody opens a checklist they already built to see
+ * whether it changed, which is exactly the case the flag exists for.
+ *
+ * Grouped by user so one rule edit is one email, however many of that person's
+ * checklists it touched. Failures are swallowed per recipient: a rule edit is
+ * the admin's action, and it must not fail because one address bounces.
+ */
+const notifyAffectedUsers = async (checklists, summary) => {
+  if (!checklists.length) return;
+
+  const byUser = new Map();
+  checklists.forEach((checklist) => {
+    const key = String(checklist.userId);
+    if (!byUser.has(key)) byUser.set(key, []);
+    byUser.get(key).push(checklist);
+  });
+
+  const recipients = await User.find({
+    _id: { $in: [...byUser.keys()] },
+    isDeleted: false,
+    status: true,
+    "notificationPrefs.email": true,
+  })
+    .select("firstName email")
+    .lean();
+
+  const results = await Promise.allSettled(
+    recipients.map((user) =>
+      sendChecklistUpdatedEmail(user, byUser.get(String(user._id)), summary)
+    )
+  );
+
+  const failed = results.filter((r) => r.status === "rejected");
+  if (failed.length) {
+    logger.error(
+      {
+        failed: failed.length,
+        total: results.length,
+        err: failed[0].reason,
+      },
+      "Checklist update emails failed"
+    );
+  }
 };
 
 exports.upsertRule = serviceHandler(async (payload, actorId) => {
@@ -180,7 +231,31 @@ exports.upsertRule = serviceHandler(async (payload, actorId) => {
       if (excluded.length) affected.state = { $nin: excluded };
     }
 
+    /**
+     * Read before the flag is set, and only the checklists not already
+     * flagged.
+     *
+     * Someone with an unread "your checklist changed" notice gains nothing
+     * from a second one carrying the same message — and an admin working
+     * through a rule over an afternoon would otherwise send an email per save.
+     * Once the user reviews the checklist and the flag clears, the next real
+     * change reaches them again.
+     */
+    const newlyAffected = await Checklist.find({
+      ...affected,
+      hasRuleUpdate: false,
+    })
+      .select("userId title serviceLabel")
+      .lean();
+
     await Checklist.updateMany(affected, { hasRuleUpdate: true });
+
+    // Fire-and-forget, matching every other send in this codebase: the rule
+    // was saved, and the admin waiting on the response should not be held up
+    // by SMTP — nor see a 500 because of it.
+    notifyAffectedUsers(newlyAffected, value.summary).catch((err) =>
+      logger.error({ err }, "Checklist update notifications failed")
+    );
   } else {
     version = 1;
     rule = await Rule.create({
@@ -204,6 +279,11 @@ exports.upsertRule = serviceHandler(async (payload, actorId) => {
       changedBy: actorId || null,
     });
   }
+
+  // The engine's output for this service has just changed. Dropping the cache
+  // here is what keeps a rule edit visible immediately rather than whenever
+  // the TTL happens to expire.
+  checklistCache.invalidateService(service.slug);
 
   return { success: true, statusCode: existing ? 200 : 201, data: rule };
 });
@@ -296,6 +376,9 @@ exports.deleteRule = serviceHandler(async (ruleId) => {
 
   await Rule.findByIdAndUpdate(ruleId, { isDeleted: true });
 
+  const owner = await GovService.findById(rule.serviceId).select("slug").lean();
+  checklistCache.invalidateService(owner?.slug);
+
   return { success: true, statusCode: 200, message: "Rule deleted" };
 });
 
@@ -323,6 +406,12 @@ exports.verifyRule = serviceHandler(async (ruleId, payload, actorId) => {
   }
 
   await rule.save();
+
+  // verificationStatus and lastVerifiedAt are both part of the generated
+  // checklist — they drive the "not yet verified" warning the user sees, which
+  // must not keep showing after someone has verified it.
+  const owner = await GovService.findById(rule.serviceId).select("slug").lean();
+  checklistCache.invalidateService(owner?.slug);
 
   return { success: true, statusCode: 200, data: rule };
 });

@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { sanitizeText } = require("../utils/sanitize");
 const { ACTION_KEYS } = require("../utils/constants");
 const { STATE_VALUES } = require("../utils/states");
 
@@ -33,7 +34,7 @@ exports.saveChecklistSchema = Joi.object({
   state: Joi.string().valid(...STATE_VALUES).required(),
   answers: answersSchema.default({}),
   alreadyHave: Joi.array().items(objectId).default([]),
-  title: Joi.string().trim().max(150).allow("", null),
+  title: Joi.string().trim().max(150).custom(sanitizeText).allow("", null),
 });
 
 exports.updateProgressSchema = Joi.object({
@@ -42,6 +43,6 @@ exports.updateProgressSchema = Joi.object({
 });
 
 exports.classifySchema = Joi.object({
-  query: Joi.string().trim().min(1).max(300).required(),
+  query: Joi.string().trim().min(1).max(300).custom(sanitizeText).required(),
   state: Joi.string().valid(...STATE_VALUES).allow(null, ""),
 });

@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { sanitizeText } = require("../utils/sanitize");
 const {
   QUESTION_TYPES,
   ACTION_KEYS,
@@ -8,7 +9,7 @@ const { STATE_VALUES } = require("../utils/states");
 
 const optionSchema = Joi.object({
   value: Joi.string().trim().required(),
-  label: Joi.string().trim().required(),
+  label: Joi.string().trim().custom(sanitizeText).required(),
 });
 
 const questionSchema = Joi.object({
@@ -24,9 +25,9 @@ const questionSchema = Joi.object({
     // question using that key would be silently overwritten.
     .invalid("state")
     .messages({ "any.invalid": '"state" is reserved — state is chosen up front' }),
-  label: Joi.string().trim().required(),
+  label: Joi.string().trim().custom(sanitizeText).required(),
   type: Joi.string().valid(...QUESTION_TYPES).default("single-select"),
-  helpText: Joi.string().trim().allow("", null),
+  helpText: Joi.string().trim().custom(sanitizeText).allow("", null),
   options: Joi.when("type", {
     is: Joi.valid("single-select", "multi-select"),
     then: Joi.array().items(optionSchema).min(1).required().messages({
@@ -40,24 +41,24 @@ const questionSchema = Joi.object({
 
 const actionSchema = Joi.object({
   key: Joi.string().valid(...ACTION_KEYS).required(),
-  label: Joi.string().trim().allow("", null),
-  description: Joi.string().trim().allow("", null),
+  label: Joi.string().trim().custom(sanitizeText).allow("", null),
+  description: Joi.string().trim().custom(sanitizeText).allow("", null),
   questions: Joi.array().items(questionSchema).default([]),
   isPublished: Joi.boolean().default(false),
   order: Joi.number().default(0),
 });
 
 const baseFields = {
-  label: Joi.string().trim().min(1).max(120),
+  label: Joi.string().trim().min(1).max(120).custom(sanitizeText),
   slug: Joi.string()
     .trim()
     .lowercase()
     .pattern(/^[a-z0-9-]+$/)
     .allow("", null),
-  description: Joi.string().trim().allow("", null),
-  authority: Joi.string().trim().allow("", null),
-  keywords: Joi.array().items(Joi.string().trim()),
-  icon: Joi.string().trim().allow("", null),
+  description: Joi.string().trim().custom(sanitizeText).allow("", null),
+  authority: Joi.string().trim().custom(sanitizeText).allow("", null),
+  keywords: Joi.array().items(Joi.string().trim().custom(sanitizeText)),
+  icon: Joi.string().trim().custom(sanitizeText).allow("", null),
   scope: Joi.string().valid(...SERVICE_SCOPES),
   availableStates: Joi.array().items(Joi.string().valid(...STATE_VALUES)),
   actions: Joi.array().items(actionSchema),

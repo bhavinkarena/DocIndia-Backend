@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { sanitizeText } = require("../utils/sanitize");
 
 const objectId = Joi.string().hex().length(24);
 
@@ -7,7 +8,7 @@ exports.createFeedbackSchema = Joi.object({
   action: Joi.string().trim().allow(null, ""),
   checklistId: objectId.allow(null),
   wasAccurate: Joi.boolean().allow(null),
-  comment: Joi.string().trim().max(2000).allow("", null),
+  comment: Joi.string().trim().max(2000).custom(sanitizeText).allow("", null),
   contactEmail: Joi.string().trim().lowercase().email().allow("", null),
 }).or("wasAccurate", "comment");
 

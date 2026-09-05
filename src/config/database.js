@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const { mongoURI, mongoDBName } = require("./appConfig");
 const { redact } = require("./validateConfig");
+const logger = require("../utils/logger");
+
+const log = logger.child({ component: "database" });
 
 /**
  * Explains the two failures that actually happen in deployment, rather than
@@ -46,15 +49,25 @@ const connectDB = async ({ retries = 5, delayMs = 3000 } = {}) => {
         dbName: mongoDBName,
         serverSelectionTimeoutMS: 10000,
       });
-      console.log(`MongoDB connection SUCCESS (db: ${mongoDBName})`);
+      log.info({ database: mongoDBName }, "MongoDB connected");
       return true;
     } catch (error) {
       const hint = explain(error);
-      console.error(
-        `MongoDB connection FAILED (attempt ${attempt}/${retries}): ${error.message}`
+      log.error(
+        {
+          attempt,
+          retries,
+          err: error.message,
+          // The hint is the whole point of explain() — it names which of the
+          // two deployment failures this is, so keep it a first-class field
+          // rather than a second log line that a filter might separate.
+          hint,
+          // Only on the first attempt: it never changes, and it is the one
+          // field here worth a line of log volume.
+          uri: attempt === 1 ? redact(mongoURI) : undefined,
+        },
+        "MongoDB connection failed"
       );
-      if (hint) console.error(`  → ${hint}`);
-      if (attempt === 1) console.error(`  uri: ${redact(mongoURI)}`);
 
       if (attempt < retries) {
         await new Promise((resolve) => setTimeout(resolve, delayMs));
@@ -62,23 +75,25 @@ const connectDB = async ({ retries = 5, delayMs = 3000 } = {}) => {
     }
   }
 
-  console.error(
-    "\nGiving up on the initial connection. The API is listening but every\n" +
-      "database-backed route will fail until this is resolved. Check /health.\n"
+  log.error(
+    "Giving up on the initial connection. The API is listening but every " +
+      "database-backed route will fail until this is resolved. Check /health."
   );
   return false;
 };
 
+// error and disconnected are warn/error rather than info: they were logged at
+// info before, which put a real outage at the same level as a healthy request.
 mongoose.connection.on("error", (err) => {
-  console.log("MongoDB connection error:", err.message);
+  log.error({ err: err.message }, "MongoDB connection error");
 });
 
 mongoose.connection.on("disconnected", () => {
-  console.log("MongoDB disconnected");
+  log.warn("MongoDB disconnected");
 });
 
 mongoose.connection.on("reconnected", () => {
-  console.log("MongoDB reconnected");
+  log.info("MongoDB reconnected");
 });
 
 const isConnected = () => mongoose.connection.readyState === 1;

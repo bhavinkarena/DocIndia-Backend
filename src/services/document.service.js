@@ -2,6 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const DocumentModel = require("../models/document.model");
 const Rule = require("../models/rule.model");
 const { serviceHandler } = require("../utils/asyncHandler");
+const checklistCache = require("../utils/checklistCache");
 const {
   createDocumentSchema,
   updateDocumentSchema,
@@ -133,6 +134,18 @@ exports.updateDocument = serviceHandler(async (documentId, data) => {
   const updated = await DocumentModel.findByIdAndUpdate(documentId, value, {
     new: true,
   });
+
+  /**
+   * The whole cache, not one service.
+   *
+   * A document is shared across every rule that references it, and its name,
+   * issuing body and official URL are copied into each cached checklist.
+   * Correcting a dead official link is exactly the edit that must take effect
+   * immediately — that link is what carries the authority the product claims
+   * none of its own. Finding which services reference it would mean scanning
+   * every rule; clearing costs seconds of recomputation and cannot be wrong.
+   */
+  checklistCache.invalidateAll("document updated");
 
   return { success: true, statusCode: 200, data: updated };
 });

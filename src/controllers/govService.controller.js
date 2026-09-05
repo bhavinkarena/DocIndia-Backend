@@ -8,6 +8,7 @@ const {
   deleteService,
 } = require("../services/govService.service");
 const { asyncHandler } = require("../utils/asyncHandler");
+const { track } = require("../services/analytics.service");
 const { STATES } = require("../utils/states");
 const { ACTION_KEYS, ACTION_LABELS } = require("../utils/constants");
 
@@ -35,6 +36,16 @@ exports.getServicesForState = asyncHandler(async (req, res) => {
 exports.getServiceBySlug = asyncHandler(async (req, res) => {
   const response = await getServiceBySlug(req.params.slug, req.query.state);
   if (!response.success) return res.error(response.statusCode, response.message);
+
+  // The top of the funnel: someone picked this service and is now choosing an
+  // action. Compared against checklist_generated it says how many people got
+  // through the wizard at all.
+  track("service_viewed", {
+    serviceSlug: req.params.slug,
+    state: req.query.state,
+    wasAuthenticated: Boolean(req.user),
+  });
+
   return res.success(200, response.data, "Service fetched successfully");
 });
 

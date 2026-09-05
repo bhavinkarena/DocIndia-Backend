@@ -17,6 +17,7 @@ const {
 } = require("../utils/common");
 const { STATES } = require("../utils/states");
 const { ACTION_LABELS } = require("../utils/constants");
+const checklistCache = require("../utils/checklistCache");
 
 // Below this, a "match" is a coincidental word in common rather than a signal.
 const MIN_MATCH_SCORE = 4;
@@ -253,7 +254,31 @@ const hydrateItems = async (composed) => {
 const findAction = (service, actionKey) =>
   (service.actions || []).find((a) => a.key === actionKey);
 
-const buildChecklist = async ({ serviceSlug, action, state, answers, alreadyHave = [] }) => {
+/**
+ * Applies the parts of the response that belong to *this* request rather than
+ * to the cached computation.
+ *
+ * `alreadyHave` is deliberately not part of the cache key. It only decides how
+ * the same list of items is split into "you have this" and "you still need
+ * this", and folding it into the key would give every distinct set of held
+ * documents its own entry — fragmenting the cache to the point of uselessness
+ * for the one input that costs nothing to recompute.
+ */
+const withRequestSpecifics = (core, alreadyHave) => {
+  const have = new Set((alreadyHave || []).map(String));
+  const items = core.items;
+
+  return {
+    ...core,
+    stillNeed: items.filter((i) => !have.has(String(i.documentId))),
+    alreadyHeld: items.filter((i) => have.has(String(i.documentId))),
+    // Must be now, not when the entry was cached — this is stamped onto saved
+    // checklists and shown on the printout as the date the advice was given.
+    generatedAt: new Date(),
+  };
+};
+
+const computeChecklist = async ({ serviceSlug, action, state, answers }) => {
   const service = await GovService.findOne({
     slug: serviceSlug,
     isDeleted: false,
@@ -304,12 +329,6 @@ const buildChecklist = async ({ serviceSlug, action, state, answers, alreadyHave
   const composed = composeItems(rule, fullAnswers);
   const items = await hydrateItems(composed);
 
-  // Split what they already hold from what they still need. Ten items is a
-  // wall; "you need two things" is a task.
-  const have = new Set(alreadyHave.map(String));
-  const stillNeed = items.filter((i) => !have.has(String(i.documentId)));
-  const alreadyHeld = items.filter((i) => have.has(String(i.documentId)));
-
   const steps = [...(rule.processSteps || [])].sort((a, b) => a.order - b.order);
 
   return {
@@ -329,8 +348,6 @@ const buildChecklist = async ({ serviceSlug, action, state, answers, alreadyHave
       stateLabel: stateLabelOf(state),
       answers,
       items,
-      stillNeed,
-      alreadyHeld,
       processSteps: steps,
       mandatoryCount: items.filter((i) => i.mandatory).length,
       conditionalCount: items.filter((i) => !i.mandatory).length,
@@ -340,8 +357,39 @@ const buildChecklist = async ({ serviceSlug, action, state, answers, alreadyHave
       ruleVersion: rule.version,
       verificationStatus: rule.verificationStatus,
       lastVerifiedAt: rule.lastVerifiedAt,
-      generatedAt: new Date(),
     },
+  };
+};
+
+/**
+ * The cached front door to the engine.
+ *
+ * Only successes are cached. A 404 means the content is unpublished or missing,
+ * and the moment an editor publishes it the answer changes — caching the
+ * failure would leave the site telling people a service does not exist for up
+ * to an hour after it went live.
+ */
+const buildChecklist = async ({ serviceSlug, action, state, answers, alreadyHave = [] }) => {
+  const key = checklistCache.buildKey({ serviceSlug, action, state, answers });
+
+  const cached = checklistCache.get(key);
+  if (cached) {
+    return {
+      success: true,
+      statusCode: 200,
+      data: withRequestSpecifics(cached, alreadyHave),
+    };
+  }
+
+  const result = await computeChecklist({ serviceSlug, action, state, answers });
+  if (!result.success) return result;
+
+  checklistCache.set(key, result.data);
+
+  return {
+    success: true,
+    statusCode: 200,
+    data: withRequestSpecifics(result.data, alreadyHave),
   };
 };
 
@@ -653,4 +701,5 @@ exports._internals = {
   blockMatches,
   validateAnswers,
   composeItems,
+  buildChecklist,
 };

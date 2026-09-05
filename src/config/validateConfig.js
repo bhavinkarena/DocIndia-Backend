@@ -1,4 +1,5 @@
 const appConfig = require("./appConfig");
+const logger = require("../utils/logger");
 
 /**
  * Fails loudly and specifically when required configuration is missing.
@@ -20,20 +21,34 @@ const validateConfig = () => {
   const missing = REQUIRED.filter((r) => !r.value);
 
   if (missing.length) {
-    console.error("\nMissing required environment variables:\n");
-    missing.forEach((m) => console.error(`  ${m.key}  — ${m.hint}`));
-    console.error(
-      "\nThe .env file is gitignored, so a deployed host has none of these\n" +
-        "unless you set them in its dashboard. See .env.example for the full list.\n"
+    logger.fatal(
+      { missing: missing.map((m) => ({ key: m.key, hint: m.hint })) },
+      "Missing required environment variables. The .env file is gitignored, " +
+        "so a deployed host has none of these unless you set them in its " +
+        "dashboard — see .env.example for the full list."
     );
     process.exit(1);
   }
 
-  console.log("Config OK");
-  console.log(`  database : ${appConfig.mongoDBName}`);
-  console.log(`  mongo    : ${redact(appConfig.mongoURI)}`);
-  console.log(`  origins  : ${appConfig.allowedOrigins.join(", ")}`);
-  console.log(`  email    : ${appConfig.emailUser ? "SMTP configured" : "console-log mode"}`);
+  logger.info(
+    {
+      database: appConfig.mongoDBName,
+      mongo: redact(appConfig.mongoURI),
+      origins: appConfig.allowedOrigins,
+      email: appConfig.emailUser ? "SMTP configured" : "console-log mode",
+      accessToken: appConfig.accessTokenExpire,
+      refreshDays: appConfig.refreshTokenDays,
+      logLevel: appConfig.logLevel,
+      // Worth logging: with this off behind a load balancer, every user of the
+      // site shares one rate-limit bucket and the first busy minute locks
+      // everyone out. The symptom looks nothing like a proxy misconfiguration.
+      proxy:
+        appConfig.trustProxy === false
+          ? "not trusted (set TRUST_PROXY if behind a load balancer)"
+          : `trusting ${appConfig.trustProxy}`,
+    },
+    "Config OK"
+  );
 };
 
 module.exports = { validateConfig, redact };

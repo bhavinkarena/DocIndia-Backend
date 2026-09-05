@@ -1,25 +1,26 @@
 const Joi = require("joi");
+const { sanitizeText } = require("../utils/sanitize");
 const { ACTION_KEYS } = require("../utils/constants");
 
 const objectId = Joi.string().hex().length(24);
 
 const fields = {
-  name: Joi.string().trim().min(1).max(150),
+  name: Joi.string().trim().min(1).max(150).custom(sanitizeText),
   slug: Joi.string()
     .trim()
     .lowercase()
     .pattern(/^[a-z0-9-]+$/)
     .allow("", null),
-  description: Joi.string().trim().allow("", null),
-  issuingBody: Joi.string().trim().allow("", null),
+  description: Joi.string().trim().custom(sanitizeText).allow("", null),
+  issuingBody: Joi.string().trim().custom(sanitizeText).allow("", null),
   officialUrl: Joi.string()
     .trim()
     .uri({ scheme: ["http", "https"] })
     .allow("", null)
     .messages({ "string.uri": "Official URL must be a valid http(s) URL" }),
   hasExpiry: Joi.boolean(),
-  typicalValidity: Joi.string().trim().allow("", null),
-  notes: Joi.string().trim().allow("", null),
+  typicalValidity: Joi.string().trim().custom(sanitizeText).allow("", null),
+  notes: Joi.string().trim().custom(sanitizeText).allow("", null),
 
   copiesRequired: Joi.number().integer().min(0).max(20).allow(null),
   attestation: Joi.string().valid(
@@ -28,8 +29,8 @@ const fields = {
     "notarised",
     "gazetted-officer"
   ),
-  validityWindow: Joi.string().trim().allow("", null),
-  formatNotes: Joi.string().trim().allow("", null),
+  validityWindow: Joi.string().trim().custom(sanitizeText).allow("", null),
+  formatNotes: Joi.string().trim().custom(sanitizeText).allow("", null),
 
   obtainedVia: Joi.object({
     serviceId: objectId.allow(null),

@@ -21,13 +21,19 @@ const Rule = require("../models/rule.model");
 const Changelog = require("../models/changelog.model");
 
 const { documents, services, rules } = require("./seedData");
+const logger = require("../utils/logger");
+
+// Same logger as the server, so a seed run inside a deploy hook lands in the
+// same stream as everything else. In development pino-pretty renders it as the
+// readable terminal output this script always had.
+const log = logger.child({ component: "seed" });
 
 const PUBLISH = process.argv.includes("--publish");
 
 const seedAdminUser = async () => {
   const existing = await User.findOne({ email: seedAdmin.email });
   if (existing) {
-    console.log(`  admin already exists: ${seedAdmin.email}`);
+    log.info({ email: seedAdmin.email }, "Admin already exists");
     return existing;
   }
 
@@ -40,7 +46,7 @@ const seedAdminUser = async () => {
   });
   await user.save();
 
-  console.log(`  created admin: ${seedAdmin.email}`);
+  log.info({ email: seedAdmin.email }, "Created admin");
   return user;
 };
 
@@ -61,7 +67,7 @@ const seedDocuments = async () => {
     bySlug[doc.slug] = saved._id;
   }
 
-  console.log(`  upserted ${documents.length} documents`);
+  log.info({ count: documents.length }, "Upserted documents");
   return bySlug;
 };
 
@@ -82,8 +88,9 @@ const seedServices = async () => {
     bySlug[service.slug] = saved._id;
   }
 
-  console.log(
-    `  upserted ${services.length} services${PUBLISH ? " (published)" : " (unpublished)"}`
+  log.info(
+    { count: services.length, published: PUBLISH },
+    "Upserted services"
   );
   return bySlug;
 };
@@ -108,7 +115,7 @@ const linkDocumentsToServices = async (documentIds, serviceIds) => {
     linked++;
   }
 
-  console.log(`  linked ${linked} documents to the service that issues them`);
+  log.info({ linked }, "Linked documents to the service that issues them");
 };
 
 const resolveDocuments = (entries, documentIds, context) =>
@@ -149,7 +156,7 @@ const seedRules = async (serviceIds, documentIds) => {
     });
 
     if (existing && existing.verificationStatus === "verified") {
-      console.log(`  skipping ${label} — already verified by a human`);
+      log.info({ rule: label }, "Skipping rule — already verified by a human");
       skipped++;
       continue;
     }
@@ -212,9 +219,7 @@ const seedRules = async (serviceIds, documentIds) => {
     }
   }
 
-  console.log(
-    `  rules: ${created} created, ${updated} updated, ${skipped} skipped`
-  );
+  log.info({ created, updated, skipped }, "Rules seeded");
 };
 
 const run = async () => {
@@ -225,11 +230,11 @@ const run = async () => {
   // useful to do without a connection.
   const connected = await connectDB();
   if (!connected) {
-    console.error("Cannot seed without a database connection.");
+    log.fatal("Cannot seed without a database connection");
     process.exit(1);
   }
 
-  console.log("\nSeeding DocuIndia…\n");
+  log.info("Seeding DocuIndia");
 
   await seedAdminUser();
   const documentIds = await seedDocuments();
@@ -237,14 +242,18 @@ const run = async () => {
   await linkDocumentsToServices(documentIds, serviceIds);
   await seedRules(serviceIds, documentIds);
 
-  console.log("\nSeed complete.");
-  console.log(
-    "\nEvery seeded rule is marked 'unverified'. Verify each one against its\n" +
-      "official source in the admin panel before treating it as correct —\n" +
-      "the fees and timelines in the seed are indicative, not confirmed.\n"
+  log.info("Seed complete");
+  // Deliberately warn, not info: seeded content is unverified, and this is the
+  // one line in the run that must not scroll past unnoticed.
+  log.warn(
+    "Every seeded rule is marked 'unverified'. Verify each one against its " +
+      "official source in the admin panel before treating it as correct — the " +
+      "fees and timelines in the seed are indicative, not confirmed."
   );
   if (!PUBLISH) {
-    console.log("Nothing is published. Run `npm run seed:demo` to publish for local browsing.\n");
+    log.info(
+      "Nothing is published. Run `npm run seed:demo` to publish for local browsing."
+    );
   }
 
   await mongoose.connection.close();
@@ -252,7 +261,7 @@ const run = async () => {
 };
 
 run().catch(async (err) => {
-  console.error("\nSeed failed:", err.message);
+  log.fatal({ err }, "Seed failed");
   await mongoose.connection.close();
   process.exit(1);
 });

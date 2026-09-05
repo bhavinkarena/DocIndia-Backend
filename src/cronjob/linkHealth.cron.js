@@ -1,6 +1,10 @@
 const cron = require("node-cron");
 const DocumentModel = require("../models/document.model");
 const LinkCheck = require("../models/linkCheck.model");
+const logger = require("../utils/logger");
+
+// See the note in reverification.cron.js.
+const log = logger.child({ job: "linkHealth" });
 
 /**
  * Probes every official source URL and records the result.
@@ -44,15 +48,24 @@ const probe = async (url) => {
   }
 };
 
-const runLinkHealthCheck = async () => {
-  const documents = await DocumentModel.find({
+/**
+ * @param documentIds  restrict the sweep to these documents. Used by the admin
+ *                     "re-check now" bulk action — after fixing a dead link,
+ *                     waiting until Monday to find out whether the fix worked
+ *                     is not a workflow.
+ */
+const runLinkHealthCheck = async (documentIds = null) => {
+  const filter = {
     isDeleted: false,
     officialUrl: { $nin: [null, ""] },
-  })
+  };
+  if (documentIds && documentIds.length) filter._id = { $in: documentIds };
+
+  const documents = await DocumentModel.find(filter)
     .select("_id officialUrl")
     .lean();
 
-  console.log(`[cron:linkHealth] checking ${documents.length} link(s)`);
+  log.info({ links: documents.length }, "Link health check starting");
 
   for (const doc of documents) {
     const result = await probe(doc.officialUrl);
@@ -79,14 +92,14 @@ const runLinkHealthCheck = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
-  console.log("[cron:linkHealth] done");
+  log.info("Link health check complete");
 };
 
 // 03:00 every Monday.
 const schedule = () =>
   cron.schedule("0 3 * * 1", () => {
     runLinkHealthCheck().catch((err) =>
-      console.error("[cron:linkHealth] failed:", err.message)
+      log.error({ err }, "Link health check failed")
     );
   });
 

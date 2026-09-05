@@ -24,8 +24,15 @@ npm run dev               # http://localhost:9002
 |---|---|
 | `PORT` | API port (default 9002) |
 | `MONGO_URI` / `MONGO_DB` | MongoDB connection |
-| `JWT_SECRET` / `TOKEN_EXPIRE` | Auth token signing |
-| `FRONTEND_URL` | CORS origin |
+| `JWT_SECRET` | Access token signing |
+| `ACCESS_TOKEN_EXPIRE` / `REFRESH_TOKEN_DAYS` | Session lifetimes (default 15m / 7d) |
+| `RESET_TOKEN_MINUTES` | Password reset link validity (default 30) |
+| `NODE_ENV` | `production` makes the refresh cookie Secure + SameSite=None |
+| `TRUST_PROXY` | Proxy hops in front of the app, so rate limits see the real client IP |
+| `FRONTEND_URL` | CORS origin, and the origin used in email links |
+| `LOG_LEVEL` | `trace`…`fatal` (default `info`) |
+| `SOFT_DELETE_RETENTION_DAYS` | How long soft-deleted records survive before the weekly cleanup (default 90) |
+| `ENABLE_API_DOCS` | `true` serves `/api-docs` in production; off by default |
 | `EMAIL_USER` / `EMAIL_PASS` | SMTP. **Leave blank** to run the email service in console-log mode |
 | `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | Seeded admin account |
 
@@ -153,23 +160,170 @@ Mongo enforces no referential integrity, so the service layer does:
 Every rule edit bumps `version`, writes a `changelog` entry, resets
 verification to `needs-review`, and flags the affected saved checklists.
 
+## Sessions
+
+Two tokens, because they solve different halves of the problem.
+
+The **access token** is a JWT sent as `Authorization: Bearer`. Nothing can
+revoke a signed JWT, so it expires in 15 minutes — that window is the entire
+limit on a stolen one.
+
+The **refresh token** is not a JWT. It is an opaque random string, stored as a
+SHA-256 hash in `refreshtokens`, and delivered in an httpOnly cookie scoped to
+`/user`. Being a database row makes it revocable; being httpOnly puts the
+long-lived credential somewhere page JavaScript cannot read it.
+
+It **rotates on every use**: `POST /user/refresh` revokes the presented token
+and issues a new one. Presenting an already-rotated token means two parties
+hold it, so every session for that account is revoked and the event is logged.
+Two exceptions keep that signal honest rather than noisy:
+
+- A token revoked by **sign-out or a password change** (no replacement
+  recorded) simply fails. It is a stale tab, not theft.
+- A token replayed **within 15 seconds** of its rotation is served normally —
+  that is two browser tabs refreshing at the same moment, not an attacker.
+
+Changing or resetting a password revokes every session. A reset issues no new
+session on purpose: the new password gets proved once before it grants access.
+
+## Rate limits
+
+| Endpoint | Budget |
+|---|---|
+| `/user/login` | 5 **failed** attempts / 15 min per IP |
+| `/user/register` | 10 / hour per IP |
+| `/user/forgot-password`, `/user/reset-password` | 5 / hour per IP |
+| `/feedback/create` | 20 / hour per IP |
+| everything else | 100 / min per IP |
+
+Successful logins don't count against the login budget, so signing in
+repeatedly on a shared machine never locks anyone out. `/health` is exempt.
+
+Behind a load balancer, set `TRUST_PROXY` — otherwise every visitor shares the
+proxy's IP and one busy minute locks out the whole site. Leave it unset when
+running directly: trusting an absent proxy lets a client forge
+`X-Forwarded-For` and bypass the limits entirely.
+
+## API docs
+
+Interactive OpenAPI docs at **`/api-docs`**, and the raw spec at
+`/api-docs.json`. Generated from JSDoc blocks on the route files rather than a
+hand-maintained spec, because a separate spec file drifts the first time
+somebody adds a field in a hurry — and a wrong spec is worse than none.
+
+Off in production unless `ENABLE_API_DOCS=true`. The spec names every endpoint,
+its shape and its role requirement, which is a map of the attack surface, and
+there is an admin CMS behind this API.
+
+## Logging
+
+Pino. JSON in production, pretty-printed in development. Every request gets an
+id (honouring an inbound `X-Request-Id`), echoed back on the response and
+attached to every line the request produces — so one filter reproduces the
+whole story of one visit, which a bare stack trace on a busy instance cannot.
+
+Levels follow outcome: 5xx is `error`, 4xx is `warn`, `/health` is `debug` so
+uptime polling does not become most of the log volume. Authorization headers,
+cookies, passwords and tokens are redacted before anything is written — logs
+are append-only and often shipped off-box, so a secret that reaches one is a
+secret that has to be rotated.
+
+## Caching
+
+The rules engine's output is memoised in a bounded LRU (`utils/checklistCache`)
+keyed on a hash of `(serviceSlug, action, state, answers)` — the answer is
+identical until an editor changes something, but recomputing it costs a service
+lookup, a rule resolution, condition evaluation and a document hydration query.
+
+Invalidation is explicit, and the one-hour TTL is only a backstop for the case
+nobody thought of:
+
+- a **rule** upsert, delete or verification clears that service
+- a **service** update or delete clears that service
+- a **document** update clears **everything** — a document is shared across
+  every rule that references it, and correcting a dead official link is exactly
+  the edit that must take effect immediately
+
+`alreadyHave` is deliberately not part of the key: it only decides how the same
+items are split into held and needed, and folding it in would give every
+distinct set of held documents its own entry. Failures are never cached, so
+publishing a service is visible at once. Multi-instance deployments would need
+Redis instead — this cache is per-process.
+
+## Input handling
+
+Free text is stripped of markup at the boundary (`utils/sanitize.js`, wired
+into the Joi schemas) rather than escaped on the way out, so no future consumer
+has to remember to escape it. HTML email templates escape their interpolations
+as well — they build markup by concatenation, where nothing escapes for you.
+
 ## API
 
 Public: `/service/states`, `/service/actions`, `/service/by-state?state=`,
 `/service/:slug?state=`, `/checklist/generate`, `/checklist/classify`,
 `/checklist/shared/:token`, `/feedback/create`, `/changelog/service/:id`
 
-Authenticated: `/user/*`, `/checklist/save|my|detail|progress|delete`
+Auth (public, cookie- or credential-based): `/user/register`, `/user/login`,
+`/user/refresh`, `/user/logout`, `/user/forgot-password`, `/user/reset-password`
+
+Authenticated: `/user/me`, `/user/change-password`,
+`/checklist/save|my|detail|progress|delete`
 
 Editor/admin: `/service/*`, `/document/*`, `/rule/*`, `/feedback/all`, `/admin/*`
+
+Full interactive reference at `/api-docs` — see **API docs** above.
 
 ## Cron jobs
 
 - **Link health** (Mon 03:00) — probes every official URL. Catches hard
   failures only; government sites often redirect a dead deep link to their
   homepage and still return 200, so human spot-checks remain the real net.
+  Can also be triggered for a chosen set of documents from the admin CMS.
 - **Re-verification** (daily 04:00) — flags rules past their review date.
   Nothing is unpublished automatically; that call belongs to a person.
+- **Cleanup** (Sun 04:30) — permanently removes records soft-deleted more than
+  `SOFT_DELETE_RETENTION_DAYS` ago, cascading to what depended on them (a
+  deleted service takes its rules and changelog; a deleted user takes their
+  saved checklists and sessions). `POST /admin/cleanup` runs the same sweep on
+  demand and **defaults to a dry run** — it reports what would go without
+  touching anything, because this is the one job that cannot be undone.
+
+## Usage analytics
+
+`AnalyticsEvent` records six things the server can actually observe: service
+views, checklist generations and saves, opened share links, and searches with
+and without matches. `GET /admin/usage` aggregates them.
+
+What it deliberately does **not** record is more important than what it does.
+No user id, no IP, no user agent, no session stitching, and not the search text
+itself. This is a government-paperwork tool used by people in a vulnerable
+position — "which documents is this person gathering" is sensitive, and the
+honest way to hold it is to keep only what answers a content question. Events
+expire after a year via a TTL index.
+
+Wizard step-by-step progress is absent for the same reason: the wizard is
+entirely client-side, so tracking abandonment would mean adding a beacon
+endpoint whose only purpose is tracking. That is a bigger decision than a
+dashboard widget.
+
+`generationsPerView` and `savesPerGeneration` are ratios, not percentages, and
+can exceed 1 — someone who tweaks their answers generates several checklists
+from one view. Both are null rather than 0 when there is no traffic, because
+"0%" for a quiet week reads as a failure rather than as silence.
+
+## Bulk operations
+
+`POST /admin/bulk/{services,documents,rules}` — publish, unpublish, verify,
+delete, and re-check links across a selection.
+
+Each item goes through the **same single-record service** the one-at-a-time UI
+uses, not a blanket `updateMany`. Those services carry the integrity rules — a
+document cannot be deleted while a rule references it, the national default
+cannot go while states rely on it — and a bulk path that bypassed them would
+let a checkbox do what the interface refuses to do one row at a time.
+
+Partial success is reported rather than hidden: deleting eight documents where
+two are still referenced deletes six and says which two were refused and why.
 
 ## Seeded content
 

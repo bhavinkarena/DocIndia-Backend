@@ -1,5 +1,10 @@
 const cron = require("node-cron");
 const Rule = require("../models/rule.model");
+const logger = require("../utils/logger");
+
+// Tagged once so every line this job writes is filterable as a unit — a cron
+// run has no request id to correlate on.
+const log = logger.child({ job: "reverification" });
 
 /**
  * Flags rules whose review date has passed. Nothing is unpublished
@@ -16,14 +21,14 @@ const runReverificationSweep = async () => {
     { verificationStatus: "needs-review" }
   );
 
-  console.log(`[cron:reverification] flagged ${result.modifiedCount} rule(s)`);
+  log.info({ flagged: result.modifiedCount }, "Re-verification sweep complete");
 };
 
 // 04:00 daily.
 const schedule = () =>
   cron.schedule("0 4 * * *", () => {
     runReverificationSweep().catch((err) =>
-      console.error("[cron:reverification] failed:", err.message)
+      log.error({ err }, "Re-verification sweep failed")
     );
   });
 
