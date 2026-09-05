@@ -11,6 +11,7 @@
  */
 const mongoose = require("mongoose");
 const connectDB = require("../config/database");
+const { validateConfig } = require("../config/validateConfig");
 const { seedAdmin } = require("../config/appConfig");
 
 const User = require("../models/user.model");
@@ -217,7 +218,17 @@ const seedRules = async (serviceIds, documentIds) => {
 };
 
 const run = async () => {
-  await connectDB();
+  validateConfig();
+
+  // connectDB retries and returns false rather than exiting, because the API
+  // should survive a database blip. A seeder should not — there is nothing
+  // useful to do without a connection.
+  const connected = await connectDB();
+  if (!connected) {
+    console.error("Cannot seed without a database connection.");
+    process.exit(1);
+  }
+
   console.log("\nSeeding DocuIndia…\n");
 
   await seedAdminUser();

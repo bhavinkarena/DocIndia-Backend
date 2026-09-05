@@ -29,6 +29,37 @@ npm run dev               # http://localhost:9002
 | `EMAIL_USER` / `EMAIL_PASS` | SMTP. **Leave blank** to run the email service in console-log mode |
 | `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | Seeded admin account |
 
+## Deploying
+
+Two things bite on a first deploy, and both look identical from the outside —
+the process starts and immediately exits.
+
+**1. `.env` is gitignored, so the host has none of it.** Set every variable
+from the table above in the host's dashboard. Boot now validates this first
+and names exactly what's missing instead of dying inside the Mongo driver.
+
+**2. MongoDB Atlas only accepts allowlisted IPs.** By default that's just the
+machine you set the cluster up on. Add the host under **Atlas → Network
+Access**. Most PaaS providers give no fixed egress IP on lower tiers, so
+`0.0.0.0/0` is usually the only workable entry there — which makes the
+connection-string password the only thing guarding the database. Use a strong
+one, and rotate it if it has ever been pasted anywhere.
+
+`FRONTEND_URL` accepts a comma-separated list, so the deployed site and a
+preview build can both be allowed without a code change.
+
+Boot order is deliberate: **config is validated, then the port is bound, then
+the database connects with retries.** Listening first means a database blip
+degrades the service instead of failing the deploy outright, and `/health`
+reports the real connection state:
+
+```json
+{ "data": { "uptime": 12.4, "database": "connected" } }
+```
+
+A 503 from `/health` with `"database": "disconnected"` means the API is fine
+and the database is not — check the logs for the specific reason.
+
 ## The model
 
 **State is global context, not a question.** It's chosen once, up front, and
