@@ -2,7 +2,9 @@ const { Router } = require("express");
 const { checkRole } = require("../middlewares/auth.middleware");
 const {
   upsertRule,
-  getRuleByCategory,
+  getRule,
+  getRulesForService,
+  deleteRule,
   verifyRule,
   getVerificationQueue,
 } = require("../controllers/rule.controller");
@@ -12,7 +14,9 @@ const EDITORS = ["admin", "editor"];
 
 ruleRoutes.post("/upsert", checkRole(EDITORS), upsertRule);
 ruleRoutes.get("/verification-queue", checkRole(EDITORS), getVerificationQueue);
-ruleRoutes.get("/category/:categoryId", checkRole(EDITORS), getRuleByCategory);
+ruleRoutes.get("/service/:serviceId", checkRole(EDITORS), getRulesForService);
+ruleRoutes.get("/service/:serviceId/:action", checkRole(EDITORS), getRule);
 ruleRoutes.put("/verify/:ruleId", checkRole(EDITORS), verifyRule);
+ruleRoutes.delete("/delete/:ruleId", checkRole(["admin"]), deleteRule);
 
 module.exports = ruleRoutes;

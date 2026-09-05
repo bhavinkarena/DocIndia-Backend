@@ -15,6 +15,36 @@ const documentSchema = new mongoose.Schema(
     hasExpiry: { type: Boolean, default: false },
     typicalValidity: { type: String, trim: true },
     notes: { type: String, trim: true },
+
+    /**
+     * The details that actually get people turned away at a counter. Wasted
+     * trips are the most expensive failure in this domain, so these are
+     * first-class fields rather than prose buried in the description.
+     */
+    copiesRequired: { type: Number, default: null },
+    attestation: {
+      type: String,
+      enum: ["none", "self-attested", "notarised", "gazetted-officer"],
+      default: "none",
+    },
+    // e.g. "must be dated within the last 3 months"
+    validityWindow: { type: String, trim: true },
+    // e.g. "35x45mm, white background, matte finish"
+    formatNotes: { type: String, trim: true },
+
+    /**
+     * If this document is itself obtainable through one of our services, link
+     * it. That turns a flat checklist into a dependency graph: "you don't
+     * have a PAN — here's how to get one first."
+     */
+    obtainedVia: {
+      serviceId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Service",
+        default: null,
+      },
+      action: { type: String, default: null },
+    },
     linkHealth: {
       lastCheckedAt: { type: Date, default: null },
       lastHttpStatus: { type: Number, default: null },

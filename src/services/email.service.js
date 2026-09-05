@@ -40,8 +40,8 @@ exports.sendChecklistUpdatedEmail = (user, checklist, summary) =>
   send({
     to: user.email,
     subject: `Your "${checklist.title}" checklist was updated`,
-    text: `The official requirements for ${checklist.categoryLabel} changed. ${summary || ""}`,
-    html: `<p>The official requirements for <strong>${checklist.categoryLabel}</strong> changed.</p><p>${summary || ""}</p><p><a href="${frontendUrl}/dashboard">Review your checklist</a></p>`,
+    text: `The official requirements for ${checklist.serviceLabel} changed. ${summary || ""}`,
+    html: `<p>The official requirements for <strong>${checklist.serviceLabel}</strong> changed.</p><p>${summary || ""}</p><p><a href="${frontendUrl}/dashboard">Review your checklist</a></p>`,
   });
 
 exports.isConfigured = isConfigured;

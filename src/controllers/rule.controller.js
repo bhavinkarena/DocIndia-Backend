@@ -1,6 +1,8 @@
 const {
   upsertRule,
-  getRuleByCategory,
+  getRule,
+  getRulesForService,
+  deleteRule,
   verifyRule,
   getVerificationQueue,
 } = require("../services/rule.service");
@@ -12,10 +14,26 @@ exports.upsertRule = asyncHandler(async (req, res) => {
   return res.success(response.statusCode, response.data, "Rule saved successfully");
 });
 
-exports.getRuleByCategory = asyncHandler(async (req, res) => {
-  const response = await getRuleByCategory(req.params.categoryId);
+exports.getRule = asyncHandler(async (req, res) => {
+  const response = await getRule(
+    req.params.serviceId,
+    req.params.action,
+    req.query.state || null
+  );
   if (!response.success) return res.error(response.statusCode, response.message);
   return res.success(200, response.data, "Rule fetched successfully");
+});
+
+exports.getRulesForService = asyncHandler(async (req, res) => {
+  const response = await getRulesForService(req.params.serviceId);
+  if (!response.success) return res.error(response.statusCode, response.message);
+  return res.success(200, response.data, "Rules fetched successfully");
+});
+
+exports.deleteRule = asyncHandler(async (req, res) => {
+  const response = await deleteRule(req.params.ruleId);
+  if (!response.success) return res.error(response.statusCode, response.message);
+  return res.success(200, {}, response.message);
 });
 
 exports.verifyRule = asyncHandler(async (req, res) => {

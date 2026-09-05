@@ -3,19 +3,21 @@ const Changelog = require("../models/changelog.model");
 const { serviceHandler } = require("../utils/asyncHandler");
 const { parseListQuery, buildPagination } = require("../utils/common");
 
-exports.getChangelogByCategory = serviceHandler(async (categoryId, query) => {
-  if (!isValidObjectId(categoryId)) {
-    return { success: false, statusCode: 400, message: "Invalid category ID" };
+exports.getChangelogByService = serviceHandler(async (serviceId, query) => {
+  if (!isValidObjectId(serviceId)) {
+    return { success: false, statusCode: 400, message: "Invalid service ID" };
   }
 
   const { pageNumber, limitNumber, skip } = parseListQuery(query);
-  const filter = { categoryId };
+
+  const filter = { serviceId };
+  if (query.action) filter.action = query.action;
 
   const [totalItems, entries] = await Promise.all([
     Changelog.countDocuments(filter),
     Changelog.find(filter)
       .populate("changedBy", "firstName lastName")
-      .sort({ version: -1 })
+      .sort({ publishedAt: -1, version: -1 })
       .skip(skip)
       .limit(limitNumber)
       .lean(),

@@ -3,19 +3,25 @@
  * duplicates, and never overwrites a rule that has already been verified
  * by a human.
  *
- * Run with: npm run seed
+ *   npm run seed         # safe: everything lands unpublished
+ *   npm run seed:demo    # also publishes, so you can click through locally
+ *
+ * The demo flag exists only so the app isn't empty on a fresh clone. It does
+ * not make the content verified — it just makes it visible.
  */
 const mongoose = require("mongoose");
 const connectDB = require("../config/database");
 const { seedAdmin } = require("../config/appConfig");
 
 const User = require("../models/user.model");
-const Category = require("../models/category.model");
+const GovService = require("../models/govService.model");
 const DocumentModel = require("../models/document.model");
 const Rule = require("../models/rule.model");
 const Changelog = require("../models/changelog.model");
 
-const { documents, categories, rules } = require("./seedData");
+const { documents, services, rules } = require("./seedData");
+
+const PUBLISH = process.argv.includes("--publish");
 
 const seedAdminUser = async () => {
   const existing = await User.findOne({ email: seedAdmin.email });
@@ -37,13 +43,18 @@ const seedAdminUser = async () => {
   return user;
 };
 
+/**
+ * Documents are written first, without their obtainedVia links — those point
+ * at services, which don't exist yet. They get back-filled in a second pass.
+ */
 const seedDocuments = async () => {
   const bySlug = {};
 
   for (const doc of documents) {
+    const { obtainedViaSlug, obtainedViaAction, ...fields } = doc;
     const saved = await DocumentModel.findOneAndUpdate(
       { slug: doc.slug },
-      { $set: { ...doc, isDeleted: false } },
+      { $set: { ...fields, isDeleted: false } },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
     bySlug[doc.slug] = saved._id;
@@ -53,22 +64,50 @@ const seedDocuments = async () => {
   return bySlug;
 };
 
-const seedCategories = async () => {
+const seedServices = async () => {
   const bySlug = {};
 
-  for (const category of categories) {
-    const saved = await Category.findOneAndUpdate(
-      { slug: category.slug },
-      // isPublished is deliberately left out of $set so re-seeding never
-      // republishes something an editor has taken down.
-      { $set: { ...category, isDeleted: false } },
+  for (const service of services) {
+    const actions = (service.actions || []).map((a) => ({
+      ...a,
+      isPublished: PUBLISH,
+    }));
+
+    const saved = await GovService.findOneAndUpdate(
+      { slug: service.slug },
+      { $set: { ...service, actions, isPublished: PUBLISH, isDeleted: false } },
       { new: true, upsert: true, setDefaultsOnInsert: true }
     );
-    bySlug[category.slug] = saved._id;
+    bySlug[service.slug] = saved._id;
   }
 
-  console.log(`  upserted ${categories.length} categories`);
+  console.log(
+    `  upserted ${services.length} services${PUBLISH ? " (published)" : " (unpublished)"}`
+  );
   return bySlug;
+};
+
+/** Second pass: now that services exist, link documents to how you get them. */
+const linkDocumentsToServices = async (documentIds, serviceIds) => {
+  let linked = 0;
+
+  for (const doc of documents) {
+    if (!doc.obtainedViaSlug) continue;
+
+    const serviceId = serviceIds[doc.obtainedViaSlug];
+    if (!serviceId) {
+      throw new Error(
+        `Seed error: document "${doc.slug}" points at unknown service "${doc.obtainedViaSlug}"`
+      );
+    }
+
+    await DocumentModel.findByIdAndUpdate(documentIds[doc.slug], {
+      obtainedVia: { serviceId, action: doc.obtainedViaAction || "new" },
+    });
+    linked++;
+  }
+
+  console.log(`  linked ${linked} documents to the service that issues them`);
 };
 
 const resolveDocuments = (entries, documentIds, context) =>
@@ -86,37 +125,54 @@ const resolveDocuments = (entries, documentIds, context) =>
     };
   });
 
-const seedRules = async (categoryIds, documentIds) => {
-  for (const [categorySlug, definition] of Object.entries(rules)) {
-    const categoryId = categoryIds[categorySlug];
-    if (!categoryId) {
-      throw new Error(`Seed error: unknown category slug "${categorySlug}"`);
+const seedRules = async (serviceIds, documentIds) => {
+  let created = 0;
+  let updated = 0;
+  let skipped = 0;
+
+  for (const definition of rules) {
+    const serviceId = serviceIds[definition.serviceSlug];
+    if (!serviceId) {
+      throw new Error(`Seed error: unknown service slug "${definition.serviceSlug}"`);
     }
 
-    const existing = await Rule.findOne({ categoryId, isDeleted: false });
+    const label = `${definition.serviceSlug}/${definition.action}${
+      definition.state ? `@${definition.state}` : ""
+    }`;
+
+    const existing = await Rule.findOne({
+      serviceId,
+      action: definition.action,
+      state: definition.state ?? null,
+      isDeleted: false,
+    });
 
     if (existing && existing.verificationStatus === "verified") {
-      console.log(`  skipping rule for "${categorySlug}" — already verified`);
+      console.log(`  skipping ${label} — already verified by a human`);
+      skipped++;
       continue;
     }
 
     const payload = {
-      categoryId,
+      serviceId,
+      action: definition.action,
+      state: definition.state ?? null,
       baseDocuments: resolveDocuments(
-        definition.baseDocuments,
+        definition.baseDocuments || [],
         documentIds,
-        `${categorySlug}.baseDocuments`
+        `${label}.baseDocuments`
       ),
-      conditionalBlocks: definition.conditionalBlocks.map((block) => ({
+      conditionalBlocks: (definition.conditionalBlocks || []).map((block) => ({
         label: block.label,
         matchType: block.matchType,
         conditions: block.conditions,
         documents: resolveDocuments(
           block.documents,
           documentIds,
-          `${categorySlug}."${block.label}"`
+          `${label}."${block.label}"`
         ),
       })),
+      processSteps: definition.processSteps || [],
       // Seeded content is explicitly not verified. Someone has to check it
       // against the official sources before it goes anywhere near a user.
       verificationStatus: "unverified",
@@ -127,35 +183,37 @@ const seedRules = async (categoryIds, documentIds) => {
     if (existing) {
       Object.assign(existing, payload);
       await existing.save();
+      updated++;
     } else {
-      const created = await Rule.create({ ...payload, version: 1 });
+      const rule = await Rule.create({ ...payload, version: 1 });
+      created++;
 
       // The seeder writes rules directly rather than going through
       // rule.service, so the v1 changelog entry has to be written here too —
       // otherwise version history starts at v2 and the audit trail has a hole
       // exactly where the original content came from.
+      const added = [
+        ...payload.baseDocuments.map((d) => d.documentId.toString()),
+        ...payload.conditionalBlocks.flatMap((b) =>
+          b.documents.map((d) => d.documentId.toString())
+        ),
+      ];
+
       await Changelog.create({
-        categoryId,
-        ruleId: created._id,
+        serviceId,
+        action: definition.action,
+        ruleId: rule._id,
         version: 1,
         summary: "Initial seed — unverified starter content",
-        changes: {
-          added: payload.baseDocuments
-            .map((d) => d.documentId.toString())
-            .concat(
-              payload.conditionalBlocks.flatMap((b) =>
-                b.documents.map((d) => d.documentId.toString())
-              )
-            ),
-          removed: [],
-          modified: [],
-        },
+        changes: { added: [...new Set(added)], removed: [], modified: [] },
         changedBy: null,
       });
     }
   }
 
-  console.log(`  upserted ${Object.keys(rules).length} rules`);
+  console.log(
+    `  rules: ${created} created, ${updated} updated, ${skipped} skipped`
+  );
 };
 
 const run = async () => {
@@ -164,15 +222,19 @@ const run = async () => {
 
   await seedAdminUser();
   const documentIds = await seedDocuments();
-  const categoryIds = await seedCategories();
-  await seedRules(categoryIds, documentIds);
+  const serviceIds = await seedServices();
+  await linkDocumentsToServices(documentIds, serviceIds);
+  await seedRules(serviceIds, documentIds);
 
   console.log("\nSeed complete.");
   console.log(
-    "\nNote: seeded categories are unpublished and their rules are marked\n" +
-      "'unverified'. Verify each rule against its official source in the admin\n" +
-      "panel before publishing.\n"
+    "\nEvery seeded rule is marked 'unverified'. Verify each one against its\n" +
+      "official source in the admin panel before treating it as correct —\n" +
+      "the fees and timelines in the seed are indicative, not confirmed.\n"
   );
+  if (!PUBLISH) {
+    console.log("Nothing is published. Run `npm run seed:demo` to publish for local browsing.\n");
+  }
 
   await mongoose.connection.close();
   process.exit(0);

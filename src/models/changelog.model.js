@@ -6,11 +6,12 @@ const mongoose = require("mongoose");
  */
 const changelogSchema = new mongoose.Schema(
   {
-    categoryId: {
+    serviceId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      ref: "Service",
       required: true,
     },
+    action: { type: String, default: null },
     ruleId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Rule",
@@ -33,6 +34,6 @@ const changelogSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false }
 );
 
-changelogSchema.index({ categoryId: 1, version: -1 });
+changelogSchema.index({ serviceId: 1, action: 1, version: -1 });
 
 module.exports = mongoose.model("Changelog", changelogSchema);

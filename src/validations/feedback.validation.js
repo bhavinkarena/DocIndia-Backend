@@ -3,7 +3,8 @@ const Joi = require("joi");
 const objectId = Joi.string().hex().length(24);
 
 exports.createFeedbackSchema = Joi.object({
-  categoryId: objectId.allow(null),
+  serviceId: objectId.allow(null),
+  action: Joi.string().trim().allow(null, ""),
   checklistId: objectId.allow(null),
   wasAccurate: Joi.boolean().allow(null),
   comment: Joi.string().trim().max(2000).allow("", null),

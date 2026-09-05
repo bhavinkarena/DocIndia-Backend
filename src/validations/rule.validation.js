@@ -3,7 +3,9 @@ const {
   CONDITION_OPERATORS,
   MATCH_TYPES,
   VERIFICATION_STATUS,
+  ACTION_KEYS,
 } = require("../utils/constants");
+const { STATE_VALUES } = require("../utils/states");
 
 const objectId = Joi.string().hex().length(24);
 
@@ -33,10 +35,27 @@ const conditionalBlockSchema = Joi.object({
   documents: Joi.array().items(ruleDocumentSchema).min(1).required(),
 });
 
+const processStepSchema = Joi.object({
+  title: Joi.string().trim().required(),
+  detail: Joi.string().trim().allow("", null),
+  mode: Joi.string().valid("online", "in-person", "either").default("either"),
+  url: Joi.string()
+    .trim()
+    .uri({ scheme: ["http", "https"] })
+    .allow("", null),
+  fee: Joi.string().trim().allow("", null),
+  timeline: Joi.string().trim().allow("", null),
+  order: Joi.number().default(0),
+});
+
 exports.upsertRuleSchema = Joi.object({
-  categoryId: objectId.required(),
+  serviceId: objectId.required(),
+  action: Joi.string().valid(...ACTION_KEYS).required(),
+  // null / omitted means this is the national default for the service+action.
+  state: Joi.string().valid(...STATE_VALUES).allow(null).default(null),
   baseDocuments: Joi.array().items(ruleDocumentSchema).default([]),
   conditionalBlocks: Joi.array().items(conditionalBlockSchema).default([]),
+  processSteps: Joi.array().items(processStepSchema).default([]),
   summary: Joi.string().trim().allow("", null),
 });
 

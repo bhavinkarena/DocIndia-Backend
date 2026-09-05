@@ -8,11 +8,12 @@ const { FEEDBACK_STATUS } = require("../utils/constants");
  */
 const feedbackSchema = new mongoose.Schema(
   {
-    categoryId: {
+    serviceId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category",
+      ref: "Service",
       default: null,
     },
+    action: { type: String, default: null },
     checklistId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Checklist",

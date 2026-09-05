@@ -159,14 +159,17 @@ exports.deleteDocument = serviceHandler(async (documentId) => {
       { "conditionalBlocks.documents.documentId": documentId },
     ],
   })
-    .populate("categoryId", "label")
+    .populate("serviceId", "label")
     .lean();
 
   if (referencing.length) {
-    const names = referencing
-      .map((r) => r.categoryId?.label)
-      .filter(Boolean)
-      .join(", ");
+    const names = [
+      ...new Set(
+        referencing
+          .map((r) => (r.serviceId?.label ? `${r.serviceId.label} (${r.action})` : null))
+          .filter(Boolean)
+      ),
+    ].join(", ");
     return {
       success: false,
       statusCode: 409,

@@ -1,5 +1,5 @@
 const { isValidObjectId } = require("mongoose");
-const Category = require("../models/category.model");
+const GovService = require("../models/govService.model");
 const Rule = require("../models/rule.model");
 const DocumentModel = require("../models/document.model");
 const Checklist = require("../models/checklist.model");
@@ -15,10 +15,14 @@ const {
   buildPagination,
   generateShareToken,
 } = require("../utils/common");
-const { isValidState } = require("../utils/states");
+const { STATES } = require("../utils/states");
+const { ACTION_LABELS } = require("../utils/constants");
 
 // Below this, a "match" is a coincidental word in common rather than a signal.
 const MIN_MATCH_SCORE = 4;
+
+const stateLabelOf = (value) =>
+  STATES.find((s) => s.value === value)?.label || value;
 
 /* ------------------------------------------------------------------ *
  * Rules engine
@@ -58,9 +62,9 @@ const blockMatches = (block, answers) => {
 };
 
 /**
- * Validates submitted answers against the category's own question
- * definitions. Built dynamically because every category has a different
- * question set — there is no single static schema to check against.
+ * Validates submitted answers against the action's own question definitions.
+ * Built dynamically because every action has a different question set — there
+ * is no single static schema to check against.
  */
 const validateAnswers = (questions = [], answers = {}) => {
   const errors = [];
@@ -78,16 +82,16 @@ const validateAnswers = (questions = [], answers = {}) => {
       return;
     }
 
-    if (question.type === "state-select") {
-      if (!isValidState(answer)) {
-        errors.push(`"${question.label}" must be a valid Indian state or UT`);
+    if (question.type === "boolean") {
+      if (typeof answer !== "boolean") {
+        errors.push(`"${question.label}" must be true or false`);
       }
       return;
     }
 
-    if (question.type === "boolean") {
-      if (typeof answer !== "boolean") {
-        errors.push(`"${question.label}" must be true or false`);
+    if (question.type === "state-select") {
+      if (!STATES.some((s) => s.value === answer)) {
+        errors.push(`"${question.label}" must be a valid Indian state or UT`);
       }
       return;
     }
@@ -106,14 +110,41 @@ const validateAnswers = (questions = [], answers = {}) => {
         errors.push(`"${question.label}" must be a list`);
         return;
       }
-      const invalid = answer.filter((a) => !allowed.includes(a));
-      if (invalid.length) {
+      if (answer.some((a) => !allowed.includes(a))) {
         errors.push(`"${question.label}" has an invalid selection`);
       }
     }
   });
 
   return errors;
+};
+
+/**
+ * Finds the rule that applies to this service + action + state.
+ *
+ * A state-specific rule wins over the national default. Most central services
+ * (PAN, passport, Aadhaar) need identical documents everywhere, so they get
+ * one national rule rather than 36 near-identical copies; only genuinely
+ * divergent states get an override.
+ */
+const resolveRule = async (serviceId, action, state) => {
+  const stateRule = await Rule.findOne({
+    serviceId,
+    action,
+    state,
+    isDeleted: false,
+  }).lean();
+
+  if (stateRule) return { rule: stateRule, source: "state" };
+
+  const nationalRule = await Rule.findOne({
+    serviceId,
+    action,
+    state: null,
+    isDeleted: false,
+  }).lean();
+
+  return nationalRule ? { rule: nationalRule, source: "national" } : { rule: null };
 };
 
 /**
@@ -168,7 +199,9 @@ const hydrateItems = async (composed) => {
   const docs = await DocumentModel.find({
     _id: { $in: ids },
     isDeleted: false,
-  }).lean();
+  })
+    .populate("obtainedVia.serviceId", "label slug isPublished")
+    .lean();
 
   const byId = new Map(docs.map((d) => [d._id.toString(), d]));
 
@@ -179,6 +212,18 @@ const hydrateItems = async (composed) => {
       // as a blank row. The admin verification queue surfaces these.
       if (!doc) return null;
 
+      // If this document is itself obtainable through a published service,
+      // expose that so the UI can offer "get this one first".
+      const via = doc.obtainedVia?.serviceId;
+      const obtainedVia =
+        via && via.isPublished
+          ? {
+              serviceSlug: via.slug,
+              serviceLabel: via.label,
+              action: doc.obtainedVia.action || "new",
+            }
+          : null;
+
       return {
         documentId: doc._id,
         name: doc.name,
@@ -187,6 +232,11 @@ const hydrateItems = async (composed) => {
         officialUrl: doc.officialUrl || "",
         hasExpiry: doc.hasExpiry,
         typicalValidity: doc.typicalValidity || "",
+        copiesRequired: doc.copiesRequired ?? null,
+        attestation: doc.attestation || "none",
+        validityWindow: doc.validityWindow || "",
+        formatNotes: doc.formatNotes || "",
+        obtainedVia,
         mandatory: entry.mandatory,
         note: entry.notes.join(" "),
         sourceBlock: entry.sourceBlock,
@@ -200,52 +250,93 @@ const hydrateItems = async (composed) => {
     });
 };
 
-const buildChecklist = async (categorySlug, answers) => {
-  const category = await Category.findOne({
-    slug: categorySlug,
+const findAction = (service, actionKey) =>
+  (service.actions || []).find((a) => a.key === actionKey);
+
+const buildChecklist = async ({ serviceSlug, action, state, answers, alreadyHave = [] }) => {
+  const service = await GovService.findOne({
+    slug: serviceSlug,
     isDeleted: false,
     isPublished: true,
   }).lean();
 
-  if (!category) {
-    return { success: false, statusCode: 404, message: "Category not found" };
+  if (!service) {
+    return { success: false, statusCode: 404, message: "Service not found" };
   }
 
-  const answerErrors = validateAnswers(category.questions, answers);
+  // A state-scoped service must actually be offered where the user is.
+  if (service.scope === "state" && !(service.availableStates || []).includes(state)) {
+    return {
+      success: false,
+      statusCode: 404,
+      message: `${service.label} is not available in ${stateLabelOf(state)}`,
+    };
+  }
+
+  const actionDef = findAction(service, action);
+  if (!actionDef || !actionDef.isPublished) {
+    return {
+      success: false,
+      statusCode: 404,
+      message: "That option is not available for this service yet",
+    };
+  }
+
+  const answerErrors = validateAnswers(actionDef.questions, answers);
   if (answerErrors.length) {
     return { success: false, statusCode: 400, message: answerErrors.join("; ") };
   }
 
-  const rule = await Rule.findOne({
-    categoryId: category._id,
-    isDeleted: false,
-  }).lean();
-
+  const { rule, source } = await resolveRule(service._id, action, state);
   if (!rule) {
     return {
       success: false,
       statusCode: 404,
-      message: "No document rules have been published for this category yet",
+      message: "No document requirements have been published for this yet",
     };
   }
 
-  const composed = composeItems(rule, answers);
+  // State is injected as an answer so rules can still branch on it — a
+  // national rule can carry one Gujarat-specific block without needing a
+  // whole separate state rule.
+  const fullAnswers = { ...answers, state };
+
+  const composed = composeItems(rule, fullAnswers);
   const items = await hydrateItems(composed);
+
+  // Split what they already hold from what they still need. Ten items is a
+  // wall; "you need two things" is a task.
+  const have = new Set(alreadyHave.map(String));
+  const stillNeed = items.filter((i) => !have.has(String(i.documentId)));
+  const alreadyHeld = items.filter((i) => have.has(String(i.documentId)));
+
+  const steps = [...(rule.processSteps || [])].sort((a, b) => a.order - b.order);
 
   return {
     success: true,
     statusCode: 200,
     data: {
-      category: {
-        _id: category._id,
-        label: category.label,
-        slug: category.slug,
-        description: category.description,
+      service: {
+        _id: service._id,
+        label: service.label,
+        slug: service.slug,
+        authority: service.authority,
+        description: service.description,
       },
+      action,
+      actionLabel: actionDef.label || ACTION_LABELS[action] || action,
+      state,
+      stateLabel: stateLabelOf(state),
       answers,
       items,
+      stillNeed,
+      alreadyHeld,
+      processSteps: steps,
       mandatoryCount: items.filter((i) => i.mandatory).length,
       conditionalCount: items.filter((i) => !i.mandatory).length,
+      // Tells the UI whether these requirements are state-specific or the
+      // national default, which is worth showing.
+      ruleScope: source,
       ruleVersion: rule.version,
       verificationStatus: rule.verificationStatus,
       lastVerifiedAt: rule.lastVerifiedAt,
@@ -263,7 +354,7 @@ exports.generateChecklist = serviceHandler(async (payload) => {
   if (error) {
     return { success: false, statusCode: 400, message: error.message };
   }
-  return buildChecklist(value.categorySlug, value.answers);
+  return buildChecklist(value);
 });
 
 /**
@@ -280,18 +371,25 @@ exports.classifyGoal = serviceHandler(async (payload) => {
   const query = value.query.toLowerCase();
   const tokens = new Set(query.split(/\s+/).filter((t) => t.length > 2));
 
-  const categories = await Category.find({ isDeleted: false, isPublished: true })
-    .select("label slug description keywords icon")
+  const filter = { isDeleted: false, isPublished: true };
+  if (value.state) {
+    filter.$or = [
+      { scope: "national" },
+      { scope: "state", availableStates: value.state },
+    ];
+  }
+
+  const services = await GovService.find(filter)
+    .select("label slug description authority keywords icon actions scope")
     .lean();
 
-  const scored = categories
-    .map((category) => {
+  const scored = services
+    .map((service) => {
       let score = 0;
 
-      (category.keywords || []).forEach((keyword) => {
+      (service.keywords || []).forEach((keyword) => {
         const k = keyword.toLowerCase();
 
-        // A full phrase hit is the strong signal.
         if (query.includes(k)) {
           score += 10;
           return;
@@ -299,8 +397,7 @@ exports.classifyGoal = serviceHandler(async (payload) => {
 
         // Word-level overlap only — never substring. Substring matching let a
         // generic word like "register" inside "gst registration" score a
-        // company-registration query against GST, which surfaced confidently
-        // wrong suggestions.
+        // company-registration query against GST.
         const overlap = k
           .split(/\s+/)
           .filter((word) => word.length > 2 && tokens.has(word)).length;
@@ -308,12 +405,40 @@ exports.classifyGoal = serviceHandler(async (payload) => {
         score += overlap * 2;
       });
 
-      if (query.includes(category.label.toLowerCase())) score += 15;
+      if (query.includes(service.label.toLowerCase())) score += 15;
 
-      return { ...category, score };
+      // Guess which action they meant, so we can deep-link past the picker.
+      const actionHints = {
+        renew: ["renew", "renewal", "reissue", "re-issue", "expired", "expiry"],
+        update: ["update", "change", "modify", "edit", "shift", "shifted"],
+        correction: ["correct", "correction", "mistake", "wrong", "spelling"],
+        replace: ["lost", "stolen", "damaged", "duplicate", "replace", "misplaced"],
+        new: ["new", "apply", "first", "fresh", "enrol", "enroll", "get"],
+      };
+
+      let guessedAction = null;
+      for (const [key, hints] of Object.entries(actionHints)) {
+        if (!(service.actions || []).some((a) => a.key === key && a.isPublished)) {
+          continue;
+        }
+        if (hints.some((h) => tokens.has(h) || query.includes(h))) {
+          guessedAction = key;
+          break;
+        }
+      }
+
+      return {
+        _id: service._id,
+        label: service.label,
+        slug: service.slug,
+        description: service.description,
+        authority: service.authority,
+        icon: service.icon,
+        score,
+        guessedAction,
+      };
     })
-    // A single generic word in common is noise, not a match.
-    .filter((c) => c.score >= MIN_MATCH_SCORE)
+    .filter((s) => s.score >= MIN_MATCH_SCORE)
     .sort((a, b) => b.score - a.score);
 
   // Confident means: a strong hit that is also clearly ahead of the runner-up.
@@ -340,17 +465,24 @@ exports.saveChecklist = serviceHandler(async (userId, payload) => {
     return { success: false, statusCode: 400, message: error.message };
   }
 
-  const generated = await buildChecklist(value.categorySlug, value.answers);
+  const generated = await buildChecklist(value);
   if (!generated.success) return generated;
 
-  const { category, items, ruleVersion } = generated.data;
+  const { service, items, processSteps, ruleVersion, actionLabel, stateLabel } =
+    generated.data;
+
+  const have = new Set((value.alreadyHave || []).map(String));
 
   const checklist = new Checklist({
     userId,
-    categoryId: category._id,
-    categorySlug: category.slug,
-    categoryLabel: category.label,
-    title: value.title || category.label,
+    serviceId: service._id,
+    serviceSlug: service.slug,
+    serviceLabel: service.label,
+    action: value.action,
+    actionLabel,
+    state: value.state,
+    stateLabel,
+    title: value.title || `${service.label} — ${actionLabel}`,
     answers: value.answers,
     // Frozen at save time — see the note in checklist.model.js.
     generatedItems: items.map((i) => ({
@@ -362,8 +494,18 @@ exports.saveChecklist = serviceHandler(async (userId, payload) => {
       mandatory: i.mandatory,
       note: i.note,
       sourceBlock: i.sourceBlock,
+      copiesRequired: i.copiesRequired,
+      attestation: i.attestation,
+      validityWindow: i.validityWindow,
+      formatNotes: i.formatNotes,
     })),
-    progress: items.map((i) => ({ documentId: i.documentId, checked: false })),
+    processSteps,
+    // Anything they told us they already have starts ticked.
+    progress: items.map((i) => ({
+      documentId: i.documentId,
+      checked: have.has(String(i.documentId)),
+      checkedAt: have.has(String(i.documentId)) ? new Date() : null,
+    })),
     ruleVersion,
     generatedAt: new Date(),
     shareToken: generateShareToken(),

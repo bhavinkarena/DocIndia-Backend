@@ -1,4 +1,4 @@
-const Category = require("../models/category.model");
+const GovService = require("../models/govService.model");
 const DocumentModel = require("../models/document.model");
 const Rule = require("../models/rule.model");
 const Checklist = require("../models/checklist.model");
@@ -8,8 +8,8 @@ const { serviceHandler } = require("../utils/asyncHandler");
 
 exports.getDashboardStats = serviceHandler(async () => {
   const [
-    categories,
-    publishedCategories,
+    services,
+    publishedServices,
     documents,
     rules,
     unverifiedRules,
@@ -19,8 +19,8 @@ exports.getDashboardStats = serviceHandler(async () => {
     newFeedback,
     inaccurateReports,
   ] = await Promise.all([
-    Category.countDocuments({ isDeleted: false }),
-    Category.countDocuments({ isDeleted: false, isPublished: true }),
+    GovService.countDocuments({ isDeleted: false }),
+    GovService.countDocuments({ isDeleted: false, isPublished: true }),
     DocumentModel.countDocuments({ isDeleted: false }),
     Rule.countDocuments({ isDeleted: false }),
     Rule.countDocuments({
@@ -40,16 +40,28 @@ exports.getDashboardStats = serviceHandler(async () => {
     Feedback.countDocuments({ isDeleted: false, wasAccurate: false }),
   ]);
 
+  // Published-and-unverified is the urgent case: live content nobody has
+  // checked against its official source.
+  const publishedUnverified = await Rule.countDocuments({
+    isDeleted: false,
+    verificationStatus: { $ne: "verified" },
+    serviceId: {
+      $in: await GovService.find({ isDeleted: false, isPublished: true })
+        .distinct("_id"),
+    },
+  });
+
   return {
     success: true,
     statusCode: 200,
     data: {
       content: {
-        categories,
-        publishedCategories,
+        services,
+        publishedServices,
         documents,
         rules,
         unverifiedRules,
+        publishedUnverified,
         brokenLinks,
       },
       usage: { users, savedChecklists },

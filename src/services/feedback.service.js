@@ -24,16 +24,17 @@ exports.getAllFeedback = serviceHandler(async (query) => {
 
   const filter = { isDeleted: false };
   if (query.status) filter.status = query.status;
-  if (query.categoryId && isValidObjectId(query.categoryId)) {
-    filter.categoryId = query.categoryId;
+  if (query.serviceId && isValidObjectId(query.serviceId)) {
+    filter.serviceId = query.serviceId;
   }
+  if (query.action) filter.action = query.action;
   if (query.accurate === "false") filter.wasAccurate = false;
   if (query.accurate === "true") filter.wasAccurate = true;
 
   const [totalItems, feedback] = await Promise.all([
     Feedback.countDocuments(filter),
     Feedback.find(filter)
-      .populate("categoryId", "label slug")
+      .populate("serviceId", "label slug")
       .sort({ [sortBy]: sortOrder })
       .skip(skip)
       .limit(limitNumber)
