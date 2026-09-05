@@ -1,0 +1,15 @@
+const Joi = require("joi");
+
+const objectId = Joi.string().hex().length(24);
+
+exports.createFeedbackSchema = Joi.object({
+  categoryId: objectId.allow(null),
+  checklistId: objectId.allow(null),
+  wasAccurate: Joi.boolean().allow(null),
+  comment: Joi.string().trim().max(2000).allow("", null),
+  contactEmail: Joi.string().trim().lowercase().email().allow("", null),
+}).or("wasAccurate", "comment");
+
+exports.updateFeedbackStatusSchema = Joi.object({
+  status: Joi.string().valid("new", "reviewed", "actioned").required(),
+});
