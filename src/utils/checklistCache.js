@@ -53,8 +53,10 @@ const canonical = (value) => {
 };
 
 /**
- * Keys are prefixed with the service slug so a rule edit can drop exactly the
- * entries for that service without tracking them separately.
+ * Keys are prefixed with the service slug. That used to drive a targeted
+ * per-service invalidation; it is kept because a readable key is worth having
+ * when inspecting the cache, not because anything filters on it any more.
+ * See the note on `invalidateAll` for why the targeted version is gone.
  */
 const buildKey = ({ serviceSlug, action, state, answers }) => {
   const digest = crypto
@@ -74,33 +76,25 @@ const get = (key) => {
 const set = (key, value) => cache.set(key, value);
 
 /**
- * Everything for one service. Called when a rule or the service itself
- * changes — both alter what the engine would now produce.
- */
-const invalidateService = (serviceSlug) => {
-  if (!serviceSlug) return invalidateAll("unknown service slug");
-
-  const prefix = `${serviceSlug}::`;
-  let dropped = 0;
-  for (const key of cache.keys()) {
-    if (key.startsWith(prefix)) {
-      cache.delete(key);
-      dropped++;
-    }
-  }
-
-  if (dropped) log.info({ serviceSlug, dropped }, "Checklist cache invalidated");
-  return dropped;
-};
-
-/**
- * Used when a document changes.
+ * The only invalidation there is, deliberately.
  *
- * A document is shared across every rule that references it, and the cached
- * result carries its name, issuing body and official URL. Working out which
- * services reference it would mean scanning every rule; clearing everything
- * costs a few seconds of recomputation and cannot be wrong. Editor actions are
- * rare — this is the right trade.
+ * There was a targeted `invalidateService(slug)` here, and for a while it was
+ * correct: an entry held one service's own rule and nothing else. Two things
+ * have since made a cached entry depend on content filed under other slugs.
+ *
+ * - **Documents** are shared by every rule that references them, and the
+ *   cached result carries a document's name, issuing body and official URL.
+ * - **Prerequisite chains** embed whole other services — their fees,
+ *   timelines and document counts — inside a checklist for this one. A
+ *   passport entry contains a copy of the Aadhaar rule's figures.
+ *
+ * Working out which entries a given edit actually reached would mean scanning
+ * every rule and every chain. Clearing everything costs a few seconds of
+ * recomputation and cannot be wrong. Editor actions are rare; a stale fee
+ * shown to a citizen at a counter is not the place to save a query.
+ *
+ * The targeted version was removed rather than left unused, because it still
+ * *looks* correct at the call site and would quietly reintroduce the bug.
  */
 const invalidateAll = (reason = "document changed") => {
   const dropped = cache.size;
@@ -127,7 +121,6 @@ module.exports = {
   buildKey,
   get,
   set,
-  invalidateService,
   invalidateAll,
   stats,
   resetStats,

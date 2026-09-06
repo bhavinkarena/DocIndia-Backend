@@ -8,6 +8,7 @@ const {
   bulkServices,
   bulkDocuments,
   bulkRules,
+  importContent,
 } = require("../controllers/admin.controller");
 
 const adminRoutes = Router();
@@ -311,5 +312,66 @@ adminRoutes.post("/bulk/documents", checkRole(EDITORS), bulkDocuments);
  *       403: { $ref: '#/components/responses/Forbidden' }
  */
 adminRoutes.post("/bulk/rules", checkRole(EDITORS), bulkRules);
+
+/**
+ * @openapi
+ * /admin/import/{type}:
+ *   post:
+ *     tags: [Admin]
+ *     summary: Bulk-import content from a file
+ *     description: >
+ *       Everything is referenced by **slug**, not ObjectId — the same shape as
+ *       `seed/seedData.js`, so one file works for both seeding and importing
+ *       and stays readable in review.
+ *
+ *
+ *       **Defaults to a dry run.** Pass `dryRun: false` to write. Either way
+ *       the whole file is validated first and *nothing* is written unless
+ *       every row passes: a half-imported catalogue is worse than a rejected
+ *       file. A 400 carries the full report in `data`, listing every problem
+ *       rather than the first.
+ *
+ *
+ *       Writes go through the ordinary single-record services, so a rule
+ *       import bumps versions, writes changelog entries, resets verification
+ *       and flags affected saved checklists exactly as editing one by hand
+ *       would. Rules a human has already verified are skipped, never
+ *       overwritten.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: type
+ *         in: path
+ *         required: true
+ *         schema: { type: string, enum: [documents, services, rules] }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [rows]
+ *             properties:
+ *               rows:
+ *                 type: array
+ *                 maxItems: 1000
+ *                 items: { type: object }
+ *               dryRun:
+ *                 type: boolean
+ *                 default: true
+ *     responses:
+ *       200:
+ *         description: >
+ *           The plan (dry run) or the result. `plan[]` says what each row would
+ *           do — create, update or skip — and `written[]` names what landed.
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Envelope' }
+ *       400:
+ *         description: Validation failed. `data.errors` lists every problem; nothing was written.
+ *       401: { $ref: '#/components/responses/Unauthorized' }
+ *       403: { $ref: '#/components/responses/Forbidden' }
+ */
+adminRoutes.post("/import/:type", checkRole(EDITORS), importContent);
 
 module.exports = adminRoutes;

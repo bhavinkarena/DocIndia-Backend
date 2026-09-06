@@ -1,0 +1,330 @@
+{
+  "_readme": [
+    "Property content pack — UNVERIFIED SCAFFOLD.",
+    "Stamp duty, registration charges and the names of the documents themselves",
+    "differ in every state — a 7/12 extract in Maharashtra, an RTC in Karnataka,",
+    "a khatauni in UP. Every rule seeds unverified and every fee is an estimate.",
+    "Property transactions carry real financial risk: this is a preparation aid,",
+    "not legal advice, and the disclaimer on every checklist says so.",
+    "See content/README.md."
+  ],
+
+  "documents": [
+    {
+      "name": "Sale Deed",
+      "slug": "sale-deed",
+      "description": "The registered instrument transferring ownership of the property.",
+      "issuingBody": "Sub-Registrar of Assurances",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "attestation": "notarised",
+      "obtainedViaSlug": "property-registration",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "Title Deed / Mother Deed",
+      "slug": "title-deed",
+      "description": "The chain of earlier deeds establishing how the seller came to own the property.",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "The single most important thing to examine before buying. Have it read by a lawyer, not by a checklist."
+    },
+    {
+      "name": "Encumbrance Certificate",
+      "slug": "encumbrance-certificate",
+      "description": "A statement of registered transactions against a property, showing whether it is mortgaged or disputed.",
+      "issuingBody": "Sub-Registrar of Assurances",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "validityWindow": "Usually requested for the last 13 to 30 years",
+      "obtainedViaSlug": "encumbrance-certificate",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "Property Card / Khata Extract",
+      "slug": "property-card",
+      "description": "The municipal record of who holds the property — called a khata, index-2 or property card depending on the state.",
+      "issuingBody": "Municipal Corporation / Revenue Department",
+      "hasExpiry": false,
+      "copiesRequired": 1
+    },
+    {
+      "name": "Stamp Duty Payment Receipt",
+      "slug": "stamp-duty-receipt",
+      "description": "Proof that stamp duty and registration fees have been paid, usually via e-stamping.",
+      "issuingBody": "State Revenue Department",
+      "hasExpiry": false,
+      "copiesRequired": 1
+    },
+    {
+      "name": "Society or Builder NOC",
+      "slug": "society-noc",
+      "description": "No-objection letter from the housing society or builder, confirming dues are clear.",
+      "hasExpiry": false,
+      "copiesRequired": 1
+    },
+    {
+      "name": "Approved Building Plan",
+      "slug": "building-plan",
+      "description": "The sanctioned plan and occupancy or completion certificate from the local authority.",
+      "issuingBody": "Municipal Corporation / Development Authority",
+      "hasExpiry": false,
+      "copiesRequired": 1
+    }
+  ],
+
+  "services": [
+    {
+      "label": "Property Registration",
+      "slug": "property-registration",
+      "description": "Register a sale deed and have the transfer recorded at the sub-registrar's office.",
+      "authority": "Sub-Registrar of Assurances",
+      "scope": "national",
+      "icon": "file-signature",
+      "order": 50,
+      "keywords": ["property registration", "sale deed", "register property", "registry", "flat registration", "land registration", "stamp duty", "jamin registry"],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Register a property purchase",
+          "order": 1,
+          "questions": [
+            {
+              "key": "propertyType",
+              "label": "What kind of property?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                { "value": "flat", "label": "Flat or apartment" },
+                { "value": "house", "label": "Independent house or plot" },
+                { "value": "agricultural", "label": "Agricultural land" }
+              ]
+            },
+            {
+              "key": "loanFunded",
+              "label": "Is a home loan involved?",
+              "type": "boolean",
+              "required": true,
+              "helpText": "The lender's representative usually attends the registration.",
+              "order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Property Mutation",
+      "slug": "property-mutation",
+      "description": "Update the municipal or revenue record so the property stands in your name after a purchase or inheritance.",
+      "authority": "Municipal Corporation / Revenue Department",
+      "scope": "national",
+      "icon": "arrow-right-left",
+      "order": 51,
+      "keywords": ["mutation", "namantaran", "dakhil kharij", "property name change", "khata transfer", "record of rights", "property transfer record"],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Apply for mutation",
+          "order": 1,
+          "questions": [
+            {
+              "key": "basis",
+              "label": "Why is the record changing?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                { "value": "purchase", "label": "I bought the property" },
+                { "value": "inheritance", "label": "I inherited it" },
+                { "value": "gift", "label": "It was gifted to me" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Encumbrance Certificate",
+      "slug": "encumbrance-certificate",
+      "description": "Obtain the record of registered transactions against a property before buying it or raising a loan.",
+      "authority": "Sub-Registrar of Assurances",
+      "scope": "national",
+      "icon": "search",
+      "order": 52,
+      "keywords": ["encumbrance certificate", "ec", "property loan check", "property dispute check", "ec certificate", "boja praman patra"],
+      "actions": [
+        { "key": "new", "label": "Apply for an EC", "order": 1, "questions": [] }
+      ]
+    },
+    {
+      "label": "Property Tax",
+      "slug": "property-tax",
+      "description": "Get a new property assessed for tax, or change the name the bill is issued in.",
+      "authority": "Municipal Corporation",
+      "scope": "national",
+      "icon": "landmark",
+      "order": 53,
+      "keywords": ["property tax", "house tax", "municipal tax", "property tax name change", "tax assessment", "milkat vera"],
+      "actions": [
+        { "key": "new", "label": "Get a new property assessed", "order": 1, "questions": [] },
+        { "key": "update", "label": "Change the name on the bill", "order": 2, "questions": [] }
+      ]
+    }
+  ],
+
+  "rules": [
+    {
+      "serviceSlug": "property-registration",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — property pack",
+      "baseDocuments": [
+        { "slug": "title-deed", "mandatory": true, "belongsTo": "seller", "note": "The seller's chain of ownership. Have a lawyer examine it before you pay anything." },
+        { "slug": "encumbrance-certificate", "mandatory": true, "note": "Confirms the property is not mortgaged or under dispute." },
+        { "slug": "stamp-duty-receipt", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true, "note": "Yours, as the buyer." },
+        { "slug": "pan-card", "mandatory": true, "note": "Required above the transaction value threshold, and for the TDS filing." },
+        { "slug": "passport-size-photograph", "mandatory": true },
+        { "slug": "counterparty-id-proof", "mandatory": true, "belongsTo": "seller", "note": "The seller's ID and PAN — both parties appear before the sub-registrar." },
+        { "slug": "witness-id-proof", "mandatory": true, "belongsTo": "witness", "note": "Two witnesses attend and sign." },
+        { "slug": "property-tax-receipt", "mandatory": true, "note": "Latest paid bill, showing no arrears." }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Flat or apartment",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "propertyType", "operator": "eq", "value": "flat" }],
+          "documents": [
+            { "slug": "society-noc", "mandatory": true },
+            { "slug": "building-plan", "mandatory": true, "note": "Sanctioned plan and the occupancy certificate." }
+          ]
+        },
+        {
+          "label": "Independent house or plot",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "propertyType", "operator": "eq", "value": "house" }],
+          "documents": [
+            { "slug": "building-plan", "mandatory": false, "note": "For a built house rather than bare land." },
+            { "slug": "property-card", "mandatory": true }
+          ]
+        },
+        {
+          "label": "Agricultural land",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "propertyType", "operator": "eq", "value": "agricultural" }],
+          "documents": [
+            { "slug": "land-record-extract", "mandatory": true, "note": "7/12, RTC or khatauni as your state calls it." },
+            { "slug": "affidavit", "mandatory": true, "note": "Several states restrict who may buy agricultural land — check your eligibility before proceeding." }
+          ]
+        },
+        {
+          "label": "Purchase funded by a home loan",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "loanFunded", "operator": "eq", "value": true }],
+          "documents": [{ "slug": "bank-account-statement", "mandatory": true, "note": "Sanction letter and the lender's disbursement instructions." }]
+        }
+      ],
+      "processSteps": [
+        { "title": "Verify the title and get an encumbrance certificate", "detail": "Do this before paying an advance, not after. It is the step that prevents the expensive mistakes.", "mode": "either", "order": 1, "minDays": 7, "maxDays": 30 },
+        { "title": "Draft the sale deed", "mode": "either", "order": 2, "minDays": 3, "maxDays": 15, "fees": [{ "label": "Drafting and legal fees", "amount": 5000, "maxAmount": 25000, "isEstimate": true, "order": 1 }] },
+        { "title": "Pay stamp duty and registration fees", "detail": "Usually via e-stamping, before the appointment.", "mode": "online", "order": 3, "minDays": 1, "maxDays": 3, "fee": "Stamp duty is a percentage of the property value and differs in every state — commonly 4–7%, with a concession for women buyers in several states" },
+        { "title": "Deduct and deposit TDS", "detail": "Applies above the statutory transaction value.", "mode": "online", "order": 4, "minDays": 1, "maxDays": 7 },
+        { "title": "Both parties attend the sub-registrar with the witnesses", "mode": "in-person", "order": 5, "minDays": 1, "maxDays": 1, "fees": [{ "label": "Registration fee", "amount": 1000, "maxAmount": 30000, "isEstimate": true, "order": 1 }] },
+        { "title": "Collect the registered deed", "mode": "in-person", "order": 6, "minDays": 7, "maxDays": 30 },
+        { "title": "Apply for mutation", "detail": "Registration transfers ownership; mutation updates the municipal record. Both are needed.", "mode": "either", "order": 7, "minDays": 15, "maxDays": 90 }
+      ]
+    },
+    {
+      "serviceSlug": "property-mutation",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — property pack",
+      "baseDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "property-tax-receipt", "mandatory": true, "note": "Showing no arrears — mutation is refused while tax is outstanding." },
+        { "slug": "affidavit", "mandatory": true, "note": "On stamp paper, and an indemnity bond in many municipalities." }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "After a purchase",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "purchase" }],
+          "documents": [
+            { "slug": "sale-deed", "mandatory": true, "note": "The registered deed." },
+            { "slug": "stamp-duty-receipt", "mandatory": true }
+          ]
+        },
+        {
+          "label": "After an inheritance",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "inheritance" }],
+          "documents": [
+            { "slug": "death-certificate", "mandatory": true, "note": "Of the previous owner." },
+            { "slug": "legal-heir-certificate", "mandatory": true },
+            { "slug": "title-deed", "mandatory": true, "note": "In the deceased's name." }
+          ]
+        },
+        {
+          "label": "Gifted property",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "gift" }],
+          "documents": [{ "slug": "sale-deed", "mandatory": true, "note": "The registered gift deed." }]
+        }
+      ],
+      "processSteps": [
+        { "title": "Apply to the municipal or revenue office", "mode": "either", "order": 1, "minDays": 1, "maxDays": 7, "fees": [{ "label": "Mutation fee", "amount": 100, "maxAmount": 2000, "isEstimate": true, "order": 1 }] },
+        { "title": "Public notice and objection period", "detail": "A notice is posted so anyone with a competing claim can object.", "mode": "either", "order": 2, "minDays": 15, "maxDays": 45 },
+        { "title": "Record is updated", "mode": "either", "order": 3, "minDays": 15, "maxDays": 90 }
+      ]
+    },
+    {
+      "serviceSlug": "encumbrance-certificate",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — property pack",
+      "baseDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "property-card", "mandatory": true, "note": "Or any document carrying the survey number and precise property description." },
+        { "slug": "sale-deed", "mandatory": false, "note": "A copy of an earlier deed helps the office locate the right record." }
+      ],
+      "processSteps": [
+        { "title": "Apply at the sub-registrar's office or state portal", "detail": "Name the period you want searched — most buyers ask for 13 to 30 years.", "mode": "either", "order": 1, "minDays": 1, "maxDays": 3, "fees": [{ "label": "Application fee", "amount": 50, "maxAmount": 500, "isEstimate": true, "order": 1 }], "fee": "Often charged per year searched" },
+        { "title": "Certificate is issued", "mode": "either", "order": 2, "minDays": 3, "maxDays": 30 }
+      ]
+    },
+    {
+      "serviceSlug": "property-tax",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — property pack",
+      "baseDocuments": [
+        { "slug": "sale-deed", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "building-plan", "mandatory": true, "note": "The sanctioned plan and the completion or occupancy certificate." },
+        { "slug": "property-card", "mandatory": false }
+      ],
+      "processSteps": [
+        { "title": "Apply for assessment at the municipal office", "mode": "either", "order": 1, "minDays": 1, "maxDays": 7, "fees": [{ "label": "Assessment fee", "amount": 0, "maxAmount": 500, "isEstimate": true, "order": 1 }] },
+        { "title": "Site inspection and measurement", "mode": "in-person", "order": 2, "minDays": 7, "maxDays": 45 },
+        { "title": "Assessment order and first bill issued", "mode": "either", "order": 3, "minDays": 15, "maxDays": 60 }
+      ]
+    },
+    {
+      "serviceSlug": "property-tax",
+      "action": "update",
+      "state": null,
+      "summary": "Initial import — property pack",
+      "baseDocuments": [
+        { "slug": "property-tax-receipt", "mandatory": true, "note": "The latest bill, in the current name." },
+        { "slug": "sale-deed", "mandatory": true, "note": "Or the gift or succession document that transferred it." },
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "affidavit", "mandatory": true, "note": "Application for the name change, usually with an indemnity bond." }
+      ],
+      "processSteps": [
+        { "title": "Apply to the municipal office", "detail": "Usually done at the same time as mutation, and some municipalities treat them as one application.", "mode": "either", "order": 1, "minDays": 1, "maxDays": 7, "fees": [{ "label": "Name change fee", "amount": 100, "maxAmount": 1000, "isEstimate": true, "order": 1 }] },
+        { "title": "Record and future bills updated", "mode": "either", "order": 2, "minDays": 15, "maxDays": 60 }
+      ]
+    }
+  ]
+}

@@ -117,6 +117,20 @@ const notifyAffectedUsers = async (checklists, summary) => {
   }
 };
 
+/**
+ * Exported for the bulk importer's dry run.
+ *
+ * The importer has to report every problem in a file *before* writing any of
+ * it, which means running these checks without going through `upsertRule` —
+ * and they must be the same checks, not a second implementation that drifts
+ * into disagreeing with the one that actually guards the database.
+ */
+exports.integrityChecks = {
+  collectDocumentIds,
+  findMissingDocuments,
+  findUnknownQuestionKeys,
+};
+
 exports.upsertRule = serviceHandler(async (payload, actorId) => {
   const { error, value } = upsertRuleSchema.validate(payload);
   if (error) {
@@ -280,10 +294,18 @@ exports.upsertRule = serviceHandler(async (payload, actorId) => {
     });
   }
 
-  // The engine's output for this service has just changed. Dropping the cache
-  // here is what keeps a rule edit visible immediately rather than whenever
-  // the TTL happens to expire.
-  checklistCache.invalidateService(service.slug);
+  /**
+   * The engine's output has just changed — and not only for this service.
+   *
+   * A generated checklist now embeds the prerequisite chain beneath it, which
+   * carries other services' fees, timelines and document counts. So a passport
+   * checklist holds a copy of the Aadhaar rule's figures, and clearing only
+   * `service.slug` would leave that passport entry quoting numbers this edit
+   * just replaced. Clearing everything costs a few seconds of recomputation
+   * and cannot be wrong; editor actions are rare enough that this is the same
+   * trade already made for document edits.
+   */
+  checklistCache.invalidateAll(`rule saved for ${service.slug}`);
 
   return { success: true, statusCode: existing ? 200 : 201, data: rule };
 });
@@ -376,8 +398,10 @@ exports.deleteRule = serviceHandler(async (ruleId) => {
 
   await Rule.findByIdAndUpdate(ruleId, { isDeleted: true });
 
+  // Global for the same reason as the upsert above: prerequisite chains put
+  // this rule's figures inside other services' cached checklists.
   const owner = await GovService.findById(rule.serviceId).select("slug").lean();
-  checklistCache.invalidateService(owner?.slug);
+  checklistCache.invalidateAll(`rule deleted for ${owner?.slug || "unknown"}`);
 
   return { success: true, statusCode: 200, message: "Rule deleted" };
 });
@@ -411,7 +435,7 @@ exports.verifyRule = serviceHandler(async (ruleId, payload, actorId) => {
   // checklist — they drive the "not yet verified" warning the user sees, which
   // must not keep showing after someone has verified it.
   const owner = await GovService.findById(rule.serviceId).select("slug").lean();
-  checklistCache.invalidateService(owner?.slug);
+  checklistCache.invalidateAll(`rule verified for ${owner?.slug || "unknown"}`);
 
   return { success: true, statusCode: 200, data: rule };
 });

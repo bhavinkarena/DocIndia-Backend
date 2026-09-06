@@ -26,6 +26,13 @@ exports.generateChecklistSchema = Joi.object({
   // Documents the user says they already hold, so the result can separate
   // "you have this" from "you still need this".
   alreadyHave: Joi.array().items(objectId).default([]),
+  /**
+   * A date the user has to meet, so the result can plan the timeline backwards
+   * from it. Past dates are accepted deliberately — the planner has an honest
+   * verdict for one, and rejecting it would only hide a deadline already
+   * missed behind a validation error.
+   */
+  targetDate: Joi.date().iso().allow(null).default(null),
 });
 
 exports.saveChecklistSchema = Joi.object({

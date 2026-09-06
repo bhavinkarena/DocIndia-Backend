@@ -7,7 +7,8 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "seed": "node src/seed/seed.js",
-    "seed:demo": "node src/seed/seed.js --publish"
+    "seed:demo": "node src/seed/seed.js --publish",
+    "content:lint": "node src/seed/lintContent.js"
   },
   "author": "",
   "license": "ISC",

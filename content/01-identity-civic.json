@@ -1,0 +1,3118 @@
+{
+  "_readme": [
+    "Identity & civic content pack — UNVERIFIED SCAFFOLD.",
+    "Every rule here seeds with verificationStatus 'unverified' and every fee",
+    "carries isEstimate:true, because these processes are administered by state",
+    "and municipal bodies and differ between them. Nothing in this file is a",
+    "confirmed statement of what any authority currently requires. Someone has",
+    "to work through the verification queue against official sources before any",
+    "of it is published. See content/README.md."
+  ],
+  "documents": [
+    {
+      "name": "Death Certificate",
+      "slug": "death-certificate",
+      "description": "Issued by the municipal corporation or gram panchayat where the death was registered.",
+      "issuingBody": "Municipal Corporation / Registrar of Births & Deaths",
+      "officialUrl": "https://crsorgi.gov.in/",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "attestation": "self-attested",
+      "obtainedViaSlug": "death-certificate",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "Hospital Birth Record",
+      "slug": "hospital-birth-record",
+      "description": "Discharge summary or birth report from the hospital or nursing home.",
+      "issuingBody": "Hospital / nursing home",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "For a home birth, the gram panchayat or a midwife's declaration is usually accepted instead."
+    },
+    {
+      "name": "Medical Certificate of Cause of Death",
+      "slug": "medical-cause-of-death",
+      "description": "Form 4 or 4A, issued by the attending doctor or hospital.",
+      "issuingBody": "Hospital / attending physician",
+      "hasExpiry": false,
+      "copiesRequired": 1
+    },
+    {
+      "name": "Cremation or Burial Receipt",
+      "slug": "cremation-burial-receipt",
+      "description": "Receipt from the crematorium or burial ground.",
+      "issuingBody": "Crematorium / burial ground",
+      "hasExpiry": false,
+      "copiesRequired": 1
+    },
+    {
+      "name": "Caste Certificate",
+      "slug": "caste-certificate",
+      "description": "Certifies SC, ST or OBC status for reservation benefits.",
+      "issuingBody": "District Collectorate / Tahsildar",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "attestation": "self-attested",
+      "obtainedViaSlug": "caste-certificate",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "Domicile / Residence Certificate",
+      "slug": "domicile-certificate",
+      "description": "Certifies that you are a permanent resident of the state.",
+      "issuingBody": "Tahsildar / Revenue Department",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "attestation": "self-attested",
+      "obtainedViaSlug": "domicile-certificate",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "Legal Heir Certificate",
+      "slug": "legal-heir-certificate",
+      "description": "Names the surviving family of a deceased person. Required to transfer property, claim a pension, or settle a bank account.",
+      "issuingBody": "Tahsildar / Revenue Department",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "attestation": "self-attested",
+      "obtainedViaSlug": "legal-heir-certificate",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "School Leaving Certificate",
+      "slug": "school-leaving-certificate",
+      "description": "Also called a transfer certificate. Widely accepted as proof of date of birth and residence.",
+      "issuingBody": "School last attended",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "attestation": "self-attested"
+    },
+    {
+      "name": "Salary Slip or Income Proof",
+      "slug": "salary-slip",
+      "description": "Recent payslips, Form 16, or an income tax return acknowledgement.",
+      "issuingBody": "Employer / Income Tax Department",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "validityWindow": "Usually the last 3 months, or the most recent assessment year"
+    },
+    {
+      "name": "Land Record Extract",
+      "slug": "land-record-extract",
+      "description": "The state's record of land holding — 7/12 extract, khatauni, patta or RTC depending on the state.",
+      "issuingBody": "State Revenue Department",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "validityWindow": "Often required to be a recent extract rather than an old copy"
+    },
+    {
+      "name": "Witness Identity Proof",
+      "slug": "witness-id-proof",
+      "description": "Any government photo ID belonging to a witness — Aadhaar, voter ID, driving licence or passport.",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "A separate registry entry from the applicant's own ID on purpose: a rule that listed \"Aadhaar\" twice would collapse into one row and lose the distinction."
+    },
+    {
+      "name": "Wedding Invitation Card",
+      "slug": "wedding-invitation",
+      "description": "Accepted by many registrars as supporting evidence of the ceremony.",
+      "hasExpiry": false,
+      "copiesRequired": 1
+    },
+    {
+      "name": "Marriage Photograph",
+      "slug": "marriage-photograph",
+      "description": "Photograph of the couple from the ceremony, sometimes required to show the ritual.",
+      "hasExpiry": false,
+      "copiesRequired": 2
+    },
+    {
+      "name": "Disability Medical Certificate",
+      "slug": "disability-medical-certificate",
+      "description": "Assessment issued by a government medical board stating the type and percentage of disability.",
+      "issuingBody": "Government hospital medical board",
+      "officialUrl": "https://www.swavlambancard.gov.in/",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "Often issued at the same appointment as the UDID assessment rather than beforehand."
+    },
+    {
+      "name": "Newspaper Advertisement",
+      "slug": "newspaper-advertisement",
+      "description": "The published notice of a name change, in one English and one regional-language paper.",
+      "issuingBody": "Newspaper",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "Keep the full original page — a cutting alone is often refused."
+    }
+  ],
+  "services": [
+    {
+      "label": "Birth Certificate",
+      "slug": "birth-certificate",
+      "description": "Register a birth, correct a mistake, or get a duplicate copy.",
+      "authority": "Municipal Corporation / Registrar of Births & Deaths",
+      "scope": "national",
+      "icon": "baby",
+      "order": 10,
+      "keywords": [
+        "birth certificate",
+        "janam praman patra",
+        "birth registration",
+        "register birth",
+        "duplicate birth certificate",
+        "janm praman"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Register a birth",
+          "order": 1,
+          "questions": [
+            {
+              "key": "howLongAgo",
+              "label": "How long ago was the birth?",
+              "type": "single-select",
+              "required": true,
+              "helpText": "Registering late needs extra permission, so this changes the paperwork.",
+              "order": 1,
+              "options": [
+                {
+                  "value": "within-21-days",
+                  "label": "Within the last 21 days"
+                },
+                {
+                  "value": "within-a-year",
+                  "label": "More than 21 days but under a year"
+                },
+                {
+                  "value": "over-a-year",
+                  "label": "More than a year ago"
+                }
+              ]
+            },
+            {
+              "key": "placeOfBirth",
+              "label": "Where did the birth take place?",
+              "type": "single-select",
+              "required": true,
+              "order": 2,
+              "options": [
+                {
+                  "value": "hospital",
+                  "label": "In a hospital or nursing home"
+                },
+                {
+                  "value": "home",
+                  "label": "At home"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "correction",
+          "label": "Correct a mistake",
+          "order": 2,
+          "questions": [
+            {
+              "key": "whatIsWrong",
+              "label": "What needs correcting?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                {
+                  "value": "name",
+                  "label": "Name of the child"
+                },
+                {
+                  "value": "parents",
+                  "label": "Parents' names"
+                },
+                {
+                  "value": "dob",
+                  "label": "Date or place of birth"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "duplicate",
+          "label": "Get a duplicate copy",
+          "order": 3,
+          "questions": []
+        }
+      ]
+    },
+    {
+      "label": "Death Certificate",
+      "slug": "death-certificate",
+      "description": "Register a death or obtain a duplicate certificate.",
+      "authority": "Municipal Corporation / Registrar of Births & Deaths",
+      "scope": "national",
+      "icon": "file-text",
+      "order": 11,
+      "keywords": [
+        "death certificate",
+        "mrityu praman patra",
+        "register death",
+        "duplicate death certificate",
+        "father passed away",
+        "mother died"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Register a death",
+          "order": 1,
+          "questions": [
+            {
+              "key": "placeOfDeath",
+              "label": "Where did the death occur?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                {
+                  "value": "hospital",
+                  "label": "In a hospital"
+                },
+                {
+                  "value": "home",
+                  "label": "At home"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "duplicate",
+          "label": "Get a duplicate copy",
+          "order": 2,
+          "questions": []
+        }
+      ]
+    },
+    {
+      "label": "Marriage Registration",
+      "slug": "marriage-registration",
+      "description": "Register a marriage and obtain the certificate.",
+      "authority": "Registrar of Marriages",
+      "scope": "national",
+      "icon": "heart",
+      "order": 12,
+      "keywords": [
+        "marriage certificate",
+        "marriage registration",
+        "vivah praman patra",
+        "register marriage",
+        "shaadi certificate",
+        "court marriage"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Register a marriage",
+          "order": 1,
+          "questions": [
+            {
+              "key": "marriageAct",
+              "label": "Under which law are you registering?",
+              "type": "single-select",
+              "required": true,
+              "helpText": "The Special Marriage Act requires a 30-day public notice; the Hindu Marriage Act does not.",
+              "order": 1,
+              "options": [
+                {
+                  "value": "hindu",
+                  "label": "Hindu Marriage Act (ceremony already performed)"
+                },
+                {
+                  "value": "special",
+                  "label": "Special Marriage Act (inter-faith, or no religious ceremony)"
+                }
+              ]
+            },
+            {
+              "key": "eitherRemarried",
+              "label": "Has either of you been married before?",
+              "type": "boolean",
+              "required": true,
+              "order": 2
+            }
+          ]
+        },
+        {
+          "key": "duplicate",
+          "label": "Get a duplicate certificate",
+          "order": 2,
+          "questions": []
+        }
+      ]
+    },
+    {
+      "label": "Income Certificate",
+      "slug": "income-certificate",
+      "description": "Certifies annual family income, for scholarships, fee waivers and scheme eligibility.",
+      "authority": "Tahsildar / Revenue Department",
+      "scope": "national",
+      "icon": "indian-rupee",
+      "order": 13,
+      "keywords": [
+        "income certificate",
+        "aay praman patra",
+        "income proof",
+        "scholarship certificate",
+        "ews certificate"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Apply for an income certificate",
+          "order": 1,
+          "questions": [
+            {
+              "key": "incomeSource",
+              "label": "Where does the family income come from?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                {
+                  "value": "salaried",
+                  "label": "Salary or pension"
+                },
+                {
+                  "value": "agriculture",
+                  "label": "Farming or land"
+                },
+                {
+                  "value": "self-employed",
+                  "label": "Self-employed or daily wage"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "renew",
+          "label": "Renew an expired certificate",
+          "order": 2,
+          "questions": []
+        }
+      ]
+    },
+    {
+      "label": "Caste Certificate",
+      "slug": "caste-certificate",
+      "description": "Certifies SC, ST or OBC status for reservations in education, jobs and schemes.",
+      "authority": "District Collectorate / Tahsildar",
+      "scope": "national",
+      "icon": "scroll-text",
+      "order": 14,
+      "keywords": [
+        "caste certificate",
+        "jati praman patra",
+        "sc certificate",
+        "st certificate",
+        "obc certificate",
+        "non creamy layer"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Apply for a caste certificate",
+          "order": 1,
+          "questions": [
+            {
+              "key": "category",
+              "label": "Which category are you applying under?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                {
+                  "value": "sc-st",
+                  "label": "SC or ST"
+                },
+                {
+                  "value": "obc",
+                  "label": "OBC"
+                }
+              ]
+            },
+            {
+              "key": "familyCertificate",
+              "label": "Does a parent or sibling already hold one?",
+              "type": "boolean",
+              "required": true,
+              "helpText": "An existing family certificate is usually the strongest supporting document.",
+              "order": 2
+            }
+          ]
+        },
+        {
+          "key": "renew",
+          "label": "Renew (non-creamy-layer certificates expire)",
+          "order": 2,
+          "questions": []
+        }
+      ]
+    },
+    {
+      "label": "Domicile Certificate",
+      "slug": "domicile-certificate",
+      "description": "Certifies that you are a permanent resident of the state.",
+      "authority": "Tahsildar / Revenue Department",
+      "scope": "national",
+      "icon": "house",
+      "order": 15,
+      "keywords": [
+        "domicile certificate",
+        "residence certificate",
+        "nivas praman patra",
+        "resident certificate",
+        "state quota"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Apply for a domicile certificate",
+          "order": 1,
+          "questions": [
+            {
+              "key": "basisOfClaim",
+              "label": "On what basis are you a resident?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                {
+                  "value": "birth",
+                  "label": "Born in this state"
+                },
+                {
+                  "value": "long-residence",
+                  "label": "Lived here for many years"
+                },
+                {
+                  "value": "marriage",
+                  "label": "Married to a resident of this state"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Legal Heir Certificate",
+      "slug": "legal-heir-certificate",
+      "description": "Identifies the surviving family of a deceased person, for pensions, insurance and transfers.",
+      "authority": "Tahsildar / Revenue Department",
+      "scope": "national",
+      "icon": "users",
+      "order": 16,
+      "keywords": [
+        "legal heir certificate",
+        "succession certificate",
+        "varasai",
+        "heirship",
+        "after death property",
+        "family member certificate"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Apply for a legal heir certificate",
+          "order": 1,
+          "questions": [
+            {
+              "key": "purpose",
+              "label": "What do you need it for?",
+              "type": "single-select",
+              "required": true,
+              "helpText": "Claims on movable assets like bank balances may need a succession certificate from a court instead.",
+              "order": 1,
+              "options": [
+                {
+                  "value": "pension",
+                  "label": "Family pension or gratuity"
+                },
+                {
+                  "value": "property",
+                  "label": "Transferring property or land"
+                },
+                {
+                  "value": "insurance",
+                  "label": "Insurance or bank claim"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Police Clearance Certificate",
+      "slug": "police-clearance-certificate",
+      "description": "Confirms you have no adverse police record — required for most work and residence visas.",
+      "authority": "Ministry of External Affairs / State Police",
+      "scope": "national",
+      "icon": "shield-check",
+      "order": 17,
+      "keywords": [
+        "police clearance certificate",
+        "pcc",
+        "police verification",
+        "no criminal record",
+        "visa police certificate",
+        "character certificate"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Apply for a PCC",
+          "order": 1,
+          "questions": [
+            {
+              "key": "reason",
+              "label": "What do you need it for?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                {
+                  "value": "emigration",
+                  "label": "A work visa or emigration"
+                },
+                {
+                  "value": "residence",
+                  "label": "Long-term residence abroad"
+                },
+                {
+                  "value": "other",
+                  "label": "Employment or other purposes in India"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Change of Name (Gazette)",
+      "slug": "name-change-gazette",
+      "description": "Change your name officially and publish it in the Government Gazette.",
+      "authority": "Department of Publication / State Government Press",
+      "scope": "national",
+      "icon": "signature",
+      "order": 18,
+      "keywords": [
+        "name change",
+        "gazette notification",
+        "change my name",
+        "surname change",
+        "name change after marriage",
+        "nam badal"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Change my name",
+          "order": 1,
+          "questions": [
+            {
+              "key": "reason",
+              "label": "Why are you changing it?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                {
+                  "value": "marriage",
+                  "label": "Marriage"
+                },
+                {
+                  "value": "divorce",
+                  "label": "Divorce"
+                },
+                {
+                  "value": "personal",
+                  "label": "Personal choice or numerology"
+                },
+                {
+                  "value": "spelling",
+                  "label": "Correcting a spelling"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "UDID Disability Card",
+      "slug": "udid-card",
+      "description": "The Unique Disability ID card, used to access disability benefits nationwide.",
+      "authority": "Department of Empowerment of Persons with Disabilities",
+      "scope": "national",
+      "icon": "accessibility",
+      "order": 19,
+      "keywords": [
+        "udid",
+        "disability certificate",
+        "disability card",
+        "viklang praman patra",
+        "swavlamban card",
+        "handicapped certificate"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Apply for a UDID card",
+          "order": 1,
+          "questions": [
+            {
+              "key": "hasCertificate",
+              "label": "Do you already have a disability certificate?",
+              "type": "boolean",
+              "required": true,
+              "helpText": "Without one you will be assessed by a medical board as part of this application.",
+              "order": 1
+            }
+          ]
+        },
+        {
+          "key": "renew",
+          "label": "Renew a card that has expired",
+          "order": 2,
+          "questions": []
+        },
+        {
+          "key": "duplicate",
+          "label": "Get a duplicate card",
+          "order": 3,
+          "questions": []
+        }
+      ]
+    },
+    {
+      "label": "Senior Citizen Card",
+      "slug": "senior-citizen-card",
+      "description": "Identity card for citizens aged 60 and over, used for travel and scheme concessions.",
+      "authority": "State Social Welfare Department",
+      "scope": "national",
+      "icon": "user-round",
+      "order": 20,
+      "keywords": [
+        "senior citizen card",
+        "old age card",
+        "vridh card",
+        "senior citizen id",
+        "60 years card"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Apply for a senior citizen card",
+          "order": 1,
+          "questions": []
+        }
+      ]
+    },
+    {
+      "label": "ABHA Health ID",
+      "slug": "abha-health-id",
+      "description": "A 14-digit health account number that links your medical records under Ayushman Bharat.",
+      "authority": "National Health Authority",
+      "scope": "national",
+      "icon": "heart-pulse",
+      "order": 21,
+      "keywords": [
+        "abha",
+        "health id",
+        "ayushman bharat health account",
+        "digital health id",
+        "abha card",
+        "ndhm"
+      ],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Create an ABHA number",
+          "order": 1,
+          "questions": []
+        }
+      ]
+    }
+  ],
+  "rules": [
+    {
+      "serviceSlug": "birth-certificate",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true,
+          "belongsTo": "parent",
+          "note": "Of both parents where possible."
+        },
+        {
+          "slug": "electricity-bill",
+          "mandatory": true,
+          "note": "Proof of address at the time of birth."
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": false,
+          "note": "Declaration of the birth details by a parent."
+        }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Born in a hospital",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "placeOfBirth",
+              "operator": "eq",
+              "value": "hospital"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "hospital-birth-record",
+              "mandatory": true,
+              "note": "The hospital usually reports the birth itself — check before applying."
+            }
+          ]
+        },
+        {
+          "label": "Born at home",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "placeOfBirth",
+              "operator": "eq",
+              "value": "home"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "affidavit",
+              "mandatory": true,
+              "note": "Declaration by the parents, and by anyone present at the birth."
+            }
+          ]
+        },
+        {
+          "label": "Registering late (over a year)",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "howLongAgo",
+              "operator": "eq",
+              "value": "over-a-year"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "affidavit",
+              "mandatory": true,
+              "note": "Non-availability certificate plus a magistrate's order is usually required."
+            },
+            {
+              "slug": "school-leaving-certificate",
+              "mandatory": false,
+              "note": "Supports the claimed date of birth."
+            }
+          ]
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Check whether the hospital already registered it",
+          "detail": "Most hospitals report births directly. A certificate may already exist.",
+          "mode": "either",
+          "order": 1,
+          "conditions": [
+            {
+              "questionKey": "placeOfBirth",
+              "operator": "eq",
+              "value": "hospital"
+            }
+          ]
+        },
+        {
+          "title": "Apply to the local registrar",
+          "mode": "either",
+          "url": "https://crsorgi.gov.in/",
+          "order": 2,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Registration fee",
+              "amount": 20,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Get a magistrate's order for a late registration",
+          "detail": "Required once a birth is more than a year old.",
+          "mode": "in-person",
+          "order": 3,
+          "minDays": 15,
+          "maxDays": 60,
+          "conditions": [
+            {
+              "questionKey": "howLongAgo",
+              "operator": "eq",
+              "value": "over-a-year"
+            }
+          ],
+          "fees": [
+            {
+              "label": "Affidavit and court fee",
+              "amount": 500,
+              "maxAmount": 2000,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Collect the certificate",
+          "mode": "in-person",
+          "order": 4,
+          "minDays": 7,
+          "maxDays": 21,
+          "fee": "Varies by municipality"
+        }
+      ]
+    },
+    {
+      "serviceSlug": "birth-certificate",
+      "action": "correction",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "birth-certificate",
+          "mandatory": true,
+          "note": "The existing certificate with the error."
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": true,
+          "note": "Declaring the correct details."
+        },
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true,
+          "belongsTo": "parent"
+        }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Correcting the child's name",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "whatIsWrong",
+              "operator": "eq",
+              "value": "name"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "school-leaving-certificate",
+              "mandatory": false,
+              "note": "Any record showing the correct name."
+            }
+          ]
+        },
+        {
+          "label": "Correcting date or place of birth",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "whatIsWrong",
+              "operator": "eq",
+              "value": "dob"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "hospital-birth-record",
+              "mandatory": true,
+              "note": "The original record showing the correct details."
+            }
+          ]
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply to the registrar with the corrected details",
+          "mode": "in-person",
+          "order": 1,
+          "minDays": 15,
+          "maxDays": 45,
+          "fees": [
+            {
+              "label": "Correction fee",
+              "amount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "serviceSlug": "birth-certificate",
+      "action": "duplicate",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": false,
+          "note": "Stating the registration number or year if the original is lost."
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply to the registrar that issued it",
+          "detail": "You will need the registration number, or the date and place of birth.",
+          "mode": "either",
+          "url": "https://crsorgi.gov.in/",
+          "order": 1,
+          "minDays": 3,
+          "maxDays": 15,
+          "fees": [
+            {
+              "label": "Duplicate copy fee",
+              "amount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "serviceSlug": "death-certificate",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true,
+          "note": "Of the deceased, and of the person applying."
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": false,
+          "note": "Declaration of the date, time and place of death."
+        },
+        {
+          "slug": "cremation-burial-receipt",
+          "mandatory": false
+        }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Died in hospital",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "placeOfDeath",
+              "operator": "eq",
+              "value": "hospital"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "medical-cause-of-death",
+              "mandatory": true,
+              "note": "The hospital usually reports the death itself — check first."
+            }
+          ]
+        },
+        {
+          "label": "Died at home",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "placeOfDeath",
+              "operator": "eq",
+              "value": "home"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "affidavit",
+              "mandatory": true,
+              "note": "Declaration by a family member, plus a witness where required."
+            },
+            {
+              "slug": "cremation-burial-receipt",
+              "mandatory": true
+            }
+          ]
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Report the death to the local registrar",
+          "detail": "Registration is free within 21 days; later registrations attract a late fee.",
+          "mode": "either",
+          "url": "https://crsorgi.gov.in/",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Registration within 21 days",
+              "amount": 0,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Collect the certificate",
+          "mode": "in-person",
+          "order": 2,
+          "minDays": 7,
+          "maxDays": 21,
+          "fees": [
+            {
+              "label": "Certificate copy",
+              "amount": 30,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "serviceSlug": "death-certificate",
+      "action": "duplicate",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true,
+          "note": "Of the person applying."
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": false,
+          "note": "Stating your relationship to the deceased."
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply to the registrar that issued it",
+          "mode": "either",
+          "url": "https://crsorgi.gov.in/",
+          "order": 1,
+          "minDays": 3,
+          "maxDays": 15,
+          "fees": [
+            {
+              "label": "Duplicate copy fee",
+              "amount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "serviceSlug": "marriage-registration",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true,
+          "note": "Of both partners."
+        },
+        {
+          "slug": "birth-certificate",
+          "mandatory": true,
+          "note": "Or another accepted age proof for both partners."
+        },
+        {
+          "slug": "passport-size-photograph",
+          "mandatory": true,
+          "note": "Several copies — registrars usually ask for four."
+        },
+        {
+          "slug": "electricity-bill",
+          "mandatory": true,
+          "note": "Address proof for both partners."
+        },
+        {
+          "slug": "witness-id-proof",
+          "mandatory": true,
+          "belongsTo": "witness",
+          "note": "Two or three witnesses, depending on the state."
+        }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Hindu Marriage Act",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "marriageAct",
+              "operator": "eq",
+              "value": "hindu"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "wedding-invitation",
+              "mandatory": false
+            },
+            {
+              "slug": "marriage-photograph",
+              "mandatory": true,
+              "note": "Usually one showing the ceremony itself."
+            }
+          ]
+        },
+        {
+          "label": "Special Marriage Act",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "marriageAct",
+              "operator": "eq",
+              "value": "special"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "affidavit",
+              "mandatory": true,
+              "note": "Declarations of marital status and that you are not within prohibited degrees of relationship."
+            }
+          ]
+        },
+        {
+          "label": "Either partner married before",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "eitherRemarried",
+              "operator": "eq",
+              "value": true
+            }
+          ],
+          "documents": [
+            {
+              "slug": "affidavit",
+              "mandatory": true,
+              "note": "Divorce decree, or the death certificate of the former spouse."
+            },
+            {
+              "slug": "death-certificate",
+              "mandatory": false,
+              "belongsTo": "spouse",
+              "note": "If the previous marriage ended in bereavement."
+            }
+          ]
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply to the Registrar of Marriages",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 7,
+          "fees": [
+            {
+              "label": "Registration fee",
+              "amount": 100,
+              "maxAmount": 500,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Wait out the 30-day public notice",
+          "detail": "The Special Marriage Act requires the notice to be displayed for objections.",
+          "mode": "either",
+          "order": 2,
+          "minDays": 30,
+          "maxDays": 45,
+          "conditions": [
+            {
+              "questionKey": "marriageAct",
+              "operator": "eq",
+              "value": "special"
+            }
+          ]
+        },
+        {
+          "title": "Attend with both partners and the witnesses",
+          "mode": "in-person",
+          "order": 3,
+          "minDays": 1,
+          "maxDays": 1
+        },
+        {
+          "title": "Collect the certificate",
+          "mode": "in-person",
+          "order": 4,
+          "minDays": 7,
+          "maxDays": 30
+        }
+      ]
+    },
+    {
+      "serviceSlug": "marriage-registration",
+      "action": "duplicate",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": true,
+          "note": "Stating the loss and the registration details."
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply to the registrar that recorded the marriage",
+          "mode": "either",
+          "order": 1,
+          "minDays": 7,
+          "maxDays": 30,
+          "fees": [
+            {
+              "label": "Duplicate certificate",
+              "amount": 100,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "serviceSlug": "income-certificate",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        },
+        {
+          "slug": "ration-card",
+          "mandatory": true,
+          "note": "Establishes who is in the family."
+        },
+        {
+          "slug": "electricity-bill",
+          "mandatory": true,
+          "note": "Proof of address."
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": true,
+          "note": "Self-declaration of total family income."
+        },
+        {
+          "slug": "passport-size-photograph",
+          "mandatory": true
+        }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Salaried or pensioned income",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "incomeSource",
+              "operator": "eq",
+              "value": "salaried"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "salary-slip",
+              "mandatory": true,
+              "note": "Recent payslips or Form 16."
+            }
+          ]
+        },
+        {
+          "label": "Income from land",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "incomeSource",
+              "operator": "eq",
+              "value": "agriculture"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "land-record-extract",
+              "mandatory": true
+            }
+          ]
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply on Digital Gujarat",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://www.digitalgujarat.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "gujarat"
+            }
+          ]
+        },
+        {
+          "title": "Apply on Aaple Sarkar",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://aaplesarkar.mahaonline.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "maharashtra"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-District Uttar Pradesh",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://edistrict.up.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "uttar-pradesh"
+            }
+          ]
+        },
+        {
+          "title": "Apply on RTPS Bihar",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://serviceonline.bihar.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "bihar"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-District West Bengal",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://edistrict.wb.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "west-bengal"
+            }
+          ]
+        },
+        {
+          "title": "Apply on MP e-District",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://mpedistrict.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "madhya-pradesh"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-Sevai",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://tnesevai.tn.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "tamil-nadu"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-Mitra",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://sso.rajasthan.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "rajasthan"
+            }
+          ]
+        },
+        {
+          "title": "Apply on Nadakacheri",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://nadakacheri.karnataka.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "karnataka"
+            }
+          ]
+        },
+        {
+          "title": "Apply on AP Seva Portal",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://vswsonline.ap.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "andhra-pradesh"
+            }
+          ]
+        },
+        {
+          "title": "Apply at the Jan Seva Kendra or state portal",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "nin",
+              "value": [
+                "gujarat",
+                "maharashtra",
+                "uttar-pradesh",
+                "bihar",
+                "west-bengal",
+                "madhya-pradesh",
+                "tamil-nadu",
+                "rajasthan",
+                "karnataka",
+                "andhra-pradesh"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Village or ward-level verification",
+          "detail": "The revenue officer confirms the declared income.",
+          "mode": "in-person",
+          "order": 2,
+          "minDays": 7,
+          "maxDays": 21
+        },
+        {
+          "title": "Collect the certificate",
+          "mode": "either",
+          "order": 3,
+          "minDays": 3,
+          "maxDays": 15
+        }
+      ]
+    },
+    {
+      "serviceSlug": "income-certificate",
+      "action": "renew",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "income-certificate",
+          "mandatory": true,
+          "note": "The expired certificate."
+        },
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": true,
+          "note": "Updated income declaration."
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Reapply with current income proof",
+          "detail": "Most states treat a renewal as a fresh application.",
+          "mode": "either",
+          "order": 1,
+          "minDays": 7,
+          "maxDays": 30,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "serviceSlug": "caste-certificate",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        },
+        {
+          "slug": "birth-certificate",
+          "mandatory": true,
+          "note": "Or a school leaving certificate as age proof."
+        },
+        {
+          "slug": "electricity-bill",
+          "mandatory": true,
+          "note": "Proof of address."
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": true,
+          "note": "Self-declaration of caste."
+        },
+        {
+          "slug": "passport-size-photograph",
+          "mandatory": true
+        }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "A relative already holds a certificate",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "familyCertificate",
+              "operator": "eq",
+              "value": true
+            }
+          ],
+          "documents": [
+            {
+              "slug": "caste-certificate",
+              "mandatory": true,
+              "belongsTo": "parent",
+              "note": "Of the parent or sibling who holds one — this is usually the strongest evidence."
+            }
+          ]
+        },
+        {
+          "label": "No family certificate",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "familyCertificate",
+              "operator": "eq",
+              "value": false
+            }
+          ],
+          "documents": [
+            {
+              "slug": "school-leaving-certificate",
+              "mandatory": true,
+              "belongsTo": "parent",
+              "note": "Old school records often record caste and are accepted as proof."
+            },
+            {
+              "slug": "land-record-extract",
+              "mandatory": false,
+              "note": "Old revenue records are sometimes accepted."
+            }
+          ]
+        },
+        {
+          "label": "OBC applicants",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "category",
+              "operator": "eq",
+              "value": "obc"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "income-certificate",
+              "mandatory": true,
+              "note": "Needed to establish non-creamy-layer status."
+            }
+          ]
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply on Digital Gujarat",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://www.digitalgujarat.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "gujarat"
+            }
+          ]
+        },
+        {
+          "title": "Apply on Aaple Sarkar",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://aaplesarkar.mahaonline.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "maharashtra"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-District Uttar Pradesh",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://edistrict.up.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "uttar-pradesh"
+            }
+          ]
+        },
+        {
+          "title": "Apply on RTPS Bihar",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://serviceonline.bihar.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "bihar"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-District West Bengal",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://edistrict.wb.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "west-bengal"
+            }
+          ]
+        },
+        {
+          "title": "Apply on MP e-District",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://mpedistrict.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "madhya-pradesh"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-Sevai",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://tnesevai.tn.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "tamil-nadu"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-Mitra",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://sso.rajasthan.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "rajasthan"
+            }
+          ]
+        },
+        {
+          "title": "Apply on Nadakacheri",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://nadakacheri.karnataka.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "karnataka"
+            }
+          ]
+        },
+        {
+          "title": "Apply on AP Seva Portal",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://vswsonline.ap.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "andhra-pradesh"
+            }
+          ]
+        },
+        {
+          "title": "Apply at the Jan Seva Kendra or state portal",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "nin",
+              "value": [
+                "gujarat",
+                "maharashtra",
+                "uttar-pradesh",
+                "bihar",
+                "west-bengal",
+                "madhya-pradesh",
+                "tamil-nadu",
+                "rajasthan",
+                "karnataka",
+                "andhra-pradesh"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Village or ward-level enquiry",
+          "mode": "in-person",
+          "order": 2,
+          "minDays": 15,
+          "maxDays": 45
+        },
+        {
+          "title": "Collect the certificate",
+          "mode": "either",
+          "order": 3,
+          "minDays": 7,
+          "maxDays": 21
+        }
+      ]
+    },
+    {
+      "serviceSlug": "caste-certificate",
+      "action": "renew",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "caste-certificate",
+          "mandatory": true,
+          "note": "The expiring certificate."
+        },
+        {
+          "slug": "income-certificate",
+          "mandatory": true,
+          "note": "Non-creamy-layer status is reassessed on income."
+        },
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Reapply with a current income certificate",
+          "detail": "Only non-creamy-layer OBC certificates expire; SC and ST certificates are usually permanent.",
+          "mode": "either",
+          "order": 1,
+          "minDays": 15,
+          "maxDays": 45,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "serviceSlug": "domicile-certificate",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        },
+        {
+          "slug": "electricity-bill",
+          "mandatory": true,
+          "note": "Proof of address, often needed for several years back."
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": true,
+          "note": "Self-declaration of continuous residence."
+        },
+        {
+          "slug": "passport-size-photograph",
+          "mandatory": true
+        }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Claiming by birth",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "basisOfClaim",
+              "operator": "eq",
+              "value": "birth"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "birth-certificate",
+              "mandatory": true
+            }
+          ]
+        },
+        {
+          "label": "Claiming by long residence",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "basisOfClaim",
+              "operator": "eq",
+              "value": "long-residence"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "school-leaving-certificate",
+              "mandatory": false,
+              "note": "School records are strong evidence of long residence."
+            },
+            {
+              "slug": "ration-card",
+              "mandatory": false
+            }
+          ]
+        },
+        {
+          "label": "Claiming through marriage",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "basisOfClaim",
+              "operator": "eq",
+              "value": "marriage"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "marriage-certificate",
+              "mandatory": true
+            },
+            {
+              "slug": "domicile-certificate",
+              "mandatory": true,
+              "belongsTo": "spouse",
+              "note": "Your spouse's domicile certificate for this state."
+            }
+          ]
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply on Digital Gujarat",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://www.digitalgujarat.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "gujarat"
+            }
+          ]
+        },
+        {
+          "title": "Apply on Aaple Sarkar",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://aaplesarkar.mahaonline.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "maharashtra"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-District Uttar Pradesh",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://edistrict.up.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "uttar-pradesh"
+            }
+          ]
+        },
+        {
+          "title": "Apply on RTPS Bihar",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://serviceonline.bihar.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "bihar"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-District West Bengal",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://edistrict.wb.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "west-bengal"
+            }
+          ]
+        },
+        {
+          "title": "Apply on MP e-District",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://mpedistrict.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "madhya-pradesh"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-Sevai",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://tnesevai.tn.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "tamil-nadu"
+            }
+          ]
+        },
+        {
+          "title": "Apply on e-Mitra",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://sso.rajasthan.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "rajasthan"
+            }
+          ]
+        },
+        {
+          "title": "Apply on Nadakacheri",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://nadakacheri.karnataka.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "karnataka"
+            }
+          ]
+        },
+        {
+          "title": "Apply on AP Seva Portal",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "detail": "Your state's own portal. A Jan Seva Kendra or CSC can file it for you if you would rather not do it online.",
+          "url": "https://vswsonline.ap.gov.in/",
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "eq",
+              "value": "andhra-pradesh"
+            }
+          ]
+        },
+        {
+          "title": "Apply at the Jan Seva Kendra or state portal",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 20,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ],
+          "conditions": [
+            {
+              "questionKey": "state",
+              "operator": "nin",
+              "value": [
+                "gujarat",
+                "maharashtra",
+                "uttar-pradesh",
+                "bihar",
+                "west-bengal",
+                "madhya-pradesh",
+                "tamil-nadu",
+                "rajasthan",
+                "karnataka",
+                "andhra-pradesh"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Local verification",
+          "mode": "in-person",
+          "order": 2,
+          "minDays": 7,
+          "maxDays": 30
+        },
+        {
+          "title": "Collect the certificate",
+          "mode": "either",
+          "order": 3,
+          "minDays": 3,
+          "maxDays": 15
+        }
+      ]
+    },
+    {
+      "serviceSlug": "legal-heir-certificate",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "death-certificate",
+          "mandatory": true,
+          "note": "Of the deceased."
+        },
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true,
+          "note": "Of every surviving family member being named."
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": true,
+          "note": "Self-declaration listing all the legal heirs."
+        },
+        {
+          "slug": "electricity-bill",
+          "mandatory": true,
+          "note": "Address proof of the deceased."
+        },
+        {
+          "slug": "ration-card",
+          "mandatory": false,
+          "note": "Helps establish who lived in the household."
+        }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "For a family pension",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "purpose",
+              "operator": "eq",
+              "value": "pension"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "salary-slip",
+              "mandatory": false,
+              "note": "Service or pension records of the deceased."
+            }
+          ]
+        },
+        {
+          "label": "For property or land",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "purpose",
+              "operator": "eq",
+              "value": "property"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "land-record-extract",
+              "mandatory": true,
+              "note": "Showing the deceased as the recorded holder."
+            }
+          ]
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply to the Tahsildar",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 7,
+          "fees": [
+            {
+              "label": "Application and stamp",
+              "amount": 20,
+              "maxAmount": 100,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Revenue enquiry and public notice",
+          "detail": "A notice is issued so anyone with a competing claim can object.",
+          "mode": "in-person",
+          "order": 2,
+          "minDays": 30,
+          "maxDays": 90
+        },
+        {
+          "title": "Collect the certificate",
+          "mode": "in-person",
+          "order": 3,
+          "minDays": 7,
+          "maxDays": 30
+        }
+      ]
+    },
+    {
+      "serviceSlug": "police-clearance-certificate",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "indian-passport",
+          "mandatory": true,
+          "note": "A PCC for emigration is issued against your passport."
+        },
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        },
+        {
+          "slug": "electricity-bill",
+          "mandatory": true,
+          "note": "Proof of your current address, which is where verification happens."
+        },
+        {
+          "slug": "passport-size-photograph",
+          "mandatory": true
+        }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "For a work visa or emigration",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "reason",
+              "operator": "eq",
+              "value": "emigration"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "affidavit",
+              "mandatory": false,
+              "note": "A copy of the employment contract or visa papers is usually asked for."
+            }
+          ]
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply on Passport Seva",
+          "mode": "online",
+          "url": "https://www.passportindia.gov.in/",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "PCC fee",
+              "amount": 500,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Attend the appointment at a PSK",
+          "mode": "in-person",
+          "order": 2,
+          "minDays": 3,
+          "maxDays": 21
+        },
+        {
+          "title": "Police verification at your address",
+          "detail": "Skipped if your passport verification is still current.",
+          "mode": "in-person",
+          "order": 3,
+          "minDays": 7,
+          "maxDays": 30
+        }
+      ]
+    },
+    {
+      "serviceSlug": "name-change-gazette",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        },
+        {
+          "slug": "affidavit",
+          "mandatory": true,
+          "note": "Sworn on stamp paper before a notary, stating the old and new name."
+        },
+        {
+          "slug": "newspaper-advertisement",
+          "mandatory": true,
+          "note": "One English and one regional-language paper."
+        },
+        {
+          "slug": "passport-size-photograph",
+          "mandatory": true
+        },
+        {
+          "slug": "tenth-marksheet",
+          "mandatory": true,
+          "note": "Showing the name as it currently stands."
+        }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Name change after marriage",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "reason",
+              "operator": "eq",
+              "value": "marriage"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "marriage-certificate",
+              "mandatory": true
+            }
+          ]
+        },
+        {
+          "label": "Name change after divorce",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "reason",
+              "operator": "eq",
+              "value": "divorce"
+            }
+          ],
+          "documents": [
+            {
+              "slug": "affidavit",
+              "mandatory": true,
+              "note": "A copy of the divorce decree."
+            }
+          ]
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Swear the change-of-name affidavit",
+          "mode": "in-person",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Stamp paper and notary",
+              "amount": 100,
+              "maxAmount": 500,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Publish the notice in two newspapers",
+          "mode": "either",
+          "order": 2,
+          "minDays": 3,
+          "maxDays": 10,
+          "fees": [
+            {
+              "label": "Newspaper advertisements",
+              "amount": 800,
+              "maxAmount": 3000,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Submit to the Government Press for gazette publication",
+          "mode": "either",
+          "url": "https://egazette.gov.in/",
+          "order": 3,
+          "minDays": 30,
+          "maxDays": 90,
+          "fees": [
+            {
+              "label": "Gazette publication",
+              "amount": 1100,
+              "maxAmount": 3000,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Update your other documents",
+          "detail": "The gazette notification is the proof you use to change the name on everything else.",
+          "mode": "either",
+          "order": 4,
+          "timeline": "Depends on each document"
+        }
+      ]
+    },
+    {
+      "serviceSlug": "udid-card",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        },
+        {
+          "slug": "passport-size-photograph",
+          "mandatory": true
+        },
+        {
+          "slug": "electricity-bill",
+          "mandatory": true,
+          "note": "Proof of address."
+        }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Already holds a disability certificate",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "hasCertificate",
+              "operator": "eq",
+              "value": true
+            }
+          ],
+          "documents": [
+            {
+              "slug": "disability-medical-certificate",
+              "mandatory": true,
+              "note": "The existing certificate, which the UDID is issued against."
+            }
+          ]
+        },
+        {
+          "label": "No certificate yet",
+          "matchType": "all",
+          "conditions": [
+            {
+              "questionKey": "hasCertificate",
+              "operator": "eq",
+              "value": false
+            }
+          ],
+          "documents": [
+            {
+              "slug": "affidavit",
+              "mandatory": false,
+              "note": "Any medical records supporting the condition, for the assessment board."
+            }
+          ]
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Register on the Swavlamban Card portal",
+          "mode": "online",
+          "url": "https://www.swavlambancard.gov.in/",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 3,
+          "fees": [
+            {
+              "label": "Application",
+              "amount": 0,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Attend the medical board assessment",
+          "detail": "Only needed if you do not already hold a disability certificate.",
+          "mode": "in-person",
+          "order": 2,
+          "minDays": 15,
+          "maxDays": 60,
+          "conditions": [
+            {
+              "questionKey": "hasCertificate",
+              "operator": "eq",
+              "value": false
+            }
+          ]
+        },
+        {
+          "title": "Card is printed and posted",
+          "mode": "either",
+          "order": 3,
+          "minDays": 30,
+          "maxDays": 90
+        }
+      ]
+    },
+    {
+      "serviceSlug": "udid-card",
+      "action": "renew",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        },
+        {
+          "slug": "disability-medical-certificate",
+          "mandatory": true,
+          "note": "Cards issued against a temporary assessment need a fresh one."
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply for renewal on the portal",
+          "mode": "online",
+          "url": "https://www.swavlambancard.gov.in/",
+          "order": 1,
+          "minDays": 15,
+          "maxDays": 60,
+          "fees": [
+            {
+              "label": "Renewal",
+              "amount": 0,
+              "order": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "serviceSlug": "udid-card",
+      "action": "duplicate",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true
+        },
+        {
+          "slug": "fir-copy",
+          "mandatory": false,
+          "note": "Some offices ask for a police report when a card is lost."
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Request a reprint on the portal",
+          "mode": "online",
+          "url": "https://www.swavlambancard.gov.in/",
+          "order": 1,
+          "minDays": 15,
+          "maxDays": 45
+        }
+      ]
+    },
+    {
+      "serviceSlug": "senior-citizen-card",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true,
+          "note": "Also serves as the age proof."
+        },
+        {
+          "slug": "electricity-bill",
+          "mandatory": true,
+          "note": "Proof of address."
+        },
+        {
+          "slug": "passport-size-photograph",
+          "mandatory": true
+        },
+        {
+          "slug": "bank-account-statement",
+          "mandatory": false,
+          "note": "Some states link concessions to a bank account."
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Apply at the district social welfare office or state portal",
+          "mode": "either",
+          "order": 1,
+          "minDays": 1,
+          "maxDays": 7,
+          "fees": [
+            {
+              "label": "Application fee",
+              "amount": 0,
+              "maxAmount": 50,
+              "isEstimate": true,
+              "order": 1
+            }
+          ]
+        },
+        {
+          "title": "Collect the card",
+          "mode": "in-person",
+          "order": 2,
+          "minDays": 15,
+          "maxDays": 45
+        }
+      ]
+    },
+    {
+      "serviceSlug": "abha-health-id",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — identity & civic pack",
+      "baseDocuments": [
+        {
+          "slug": "aadhaar-card",
+          "mandatory": true,
+          "note": "The mobile number linked to it receives the OTP."
+        }
+      ],
+      "processSteps": [
+        {
+          "title": "Create the ABHA number online",
+          "detail": "Takes a few minutes with an Aadhaar OTP. No documents are posted or verified in person.",
+          "mode": "online",
+          "url": "https://abha.abdm.gov.in/",
+          "order": 1,
+          "minDays": 0,
+          "maxDays": 1,
+          "fees": [
+            {
+              "label": "Creating an ABHA number",
+              "amount": 0,
+              "order": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

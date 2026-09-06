@@ -7,6 +7,7 @@ const {
   bulkRules,
 } = require("../services/admin.service");
 const { getUsageSummary } = require("../services/analytics.service");
+const { runImport } = require("../services/import.service");
 const { asyncHandler } = require("../utils/asyncHandler");
 
 exports.getDashboardStats = asyncHandler(async (req, res) => {
@@ -60,3 +61,30 @@ const bulkHandler = (operation, needsActor = false) =>
 exports.bulkServices = bulkHandler(bulkServices);
 exports.bulkDocuments = bulkHandler(bulkDocuments);
 exports.bulkRules = bulkHandler(bulkRules, true);
+
+/**
+ * Bulk content import.
+ *
+ * Defaults to a dry run, like the cleanup endpoint above and for the same
+ * reason: when a request is ambiguous about whether it means to write, the
+ * safe reading is the one to take. A caller wanting the write says so.
+ *
+ * A failed validation returns 400 *with the full report* rather than a bare
+ * message — the whole value of this endpoint is telling an editor every
+ * problem in their file at once instead of one per attempt.
+ */
+exports.importContent = asyncHandler(async (req, res) => {
+  const response = await runImport(
+    {
+      type: req.params.type,
+      rows: req.body?.rows,
+      dryRun: req.body?.dryRun !== false,
+    },
+    req.user?._id
+  );
+
+  if (!response.success) {
+    return res.error(response.statusCode, response.message, response.data);
+  }
+  return res.success(200, response.data, response.message);
+});

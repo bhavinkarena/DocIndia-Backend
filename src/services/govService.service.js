@@ -339,14 +339,15 @@ exports.updateService = serviceHandler(async (serviceId, data) => {
 
   const updated = await GovService.findByIdAndUpdate(serviceId, value, { new: true });
 
-  // Publishing state, labels, action labels and availableStates all show up in
-  // a generated checklist, or decide whether one can be generated at all.
-  // Both slugs are cleared: if the slug itself changed, entries are still
-  // filed under the old one.
-  checklistCache.invalidateService(service.slug);
-  if (updated?.slug && updated.slug !== service.slug) {
-    checklistCache.invalidateService(updated.slug);
-  }
+  /**
+   * Publishing state, labels, action labels and availableStates all show up in
+   * a generated checklist, or decide whether one can be generated at all — and
+   * they appear in *other* services' checklists too, as nodes on a
+   * prerequisite chain. Unpublishing Aadhaar has to stop the passport
+   * checklist offering it as a next step, so this clears everything rather
+   * than this service's own entries.
+   */
+  checklistCache.invalidateAll(`service updated: ${service.slug}`);
 
   return { success: true, statusCode: 200, data: updated };
 });
@@ -364,7 +365,7 @@ exports.deleteService = serviceHandler(async (serviceId) => {
   await GovService.findByIdAndUpdate(serviceId, { isDeleted: true });
   await Rule.updateMany({ serviceId }, { isDeleted: true });
 
-  checklistCache.invalidateService(service.slug);
+  checklistCache.invalidateAll(`service deleted: ${service.slug}`);
 
   return { success: true, statusCode: 200, message: "Service deleted" };
 });

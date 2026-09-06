@@ -83,6 +83,25 @@ reports the real connection state:
 A 503 from `/health` with `"database": "disconnected"` means the API is fine
 and the database is not — check the logs for the specific reason.
 
+## Content
+
+Content lives in two places, both in the same slug-referenced format:
+
+- **`src/seed/seedData.js`** — the bootstrap set. The original eight services.
+- **`content/*.json`** — packs, one per category, merged in by the seeder.
+
+The split exists because `seedData.js` was already 1,300 lines at eight
+services and the catalogue is meant to reach forty. Merging the packs into the
+seed rather than importing them separately keeps **one** command that produces
+a complete environment — otherwise a fresh clone gets eight services and nobody
+finds out why.
+
+A pack is exactly the bulk-import format, so the same file either seeds a new
+environment or imports into a running one. See `content/README.md`.
+
+**None of it is verified.** Rules seed as `unverified` and fees as estimates;
+`--publish` makes content visible, not correct.
+
 ## The model
 
 **State is global context, not a question.** It's chosen once, up front, and
@@ -139,12 +158,73 @@ resolve service (is it offered in this state?)
   → base documents + matched conditional blocks
   → union by documentId (mandatory wins over conditional)
   → resolve document references
+  → keep the process steps this applicant performs, and the fees they pay
+  → total the money and the time
+  → follow obtainedVia to build the prerequisite chain
   → split into "already have" / "still need"
-  → items[] + processSteps[] + ruleScope + lastVerifiedAt
+  → items[] + prerequisites[] + journey + cost + timeline + processSteps[]
 ```
 
 Condition operators: `eq`, `neq`, `in`, `nin`, `contains`. Blocks match on
 `all` or `any` of their conditions.
+
+**Three things carry conditions, not one.** A conditional document block, a
+whole process step, and a single fee line all evaluate against the same
+answers with the same operators. Tatkal is the case that needs all three: it
+adds a ₹2,000 fee line, and it replaces a three-to-six-week police
+verification step with a three-to-seven-day one. With one gate you can express
+the fee or the step but not both, and a "route" whose timeline lives in prose
+is a timeline nothing can plan a deadline against.
+
+The one asymmetry: **an empty condition list means "always" on steps and fee
+lines, and "never" on a document block.** Most fees and most steps apply to
+everybody; a document block with no conditions is a mistake.
+
+### Money and time
+
+`fees[]` and `minDays`/`maxDays` are the computable forms. The free-text `fee`
+and `timeline` survive as fallbacks for what genuinely resists a number
+("varies by municipality") and can sit alongside a structured value — "₹150
+approx." and "varies by state" are two different facts.
+
+Both totals are **null rather than zero** when nothing is quotable. "We don't
+know" and "it's free" are different statements and the UI renders them
+differently. `hasUnquoted` marks a total that is a floor because some step's
+charge is prose, and `isEstimate` marks a figure not taken from an official
+schedule.
+
+### Prerequisite chains
+
+`obtainedVia` links a document to the service that issues it. The engine
+follows that recursively, **three levels deep**, resolving a level at a time —
+one query each for services, rules and documents per level, so depth costs a
+fixed handful of round trips rather than one per branch.
+
+Only **base documents** are expanded. A prerequisite's conditional blocks
+branch on answers to its own questions and nobody has answered them; the
+result is the floor, flagged with `hasConditionalDocs`.
+
+**Cycles are real content, not a bug.** Aadhaar accepts a bank statement, and
+opening a bank account needs Aadhaar. The chain detects the loop, marks the
+node, and stops.
+
+`journey` rolls the chain up, and money and time do not aggregate the same
+way:
+
+- **Cost sums.** Everything on the chain gets paid for.
+- **Time takes the maximum across siblings.** Prerequisites at the same level
+  are independent errands that can run at the same time. Summing them would
+  tell someone a fortnight of parallel paperwork takes two months, and they
+  would abandon a plan that was fine.
+
+`deadlinePlan` works backwards from a `targetDate`, **against the worst case
+and against the whole chain**. A passport takes six weeks; a passport for
+someone with no Aadhaar takes six weeks after a three-month enrolment, and
+answering with the first figure is the exact mistake the product exists to
+prevent.
+
+`targetDate` is not part of the cache key — the plan is relative to *today*,
+so a cached one would hand tomorrow's visitor a day they don't have.
 
 ## Content integrity
 
@@ -228,6 +308,40 @@ cookies, passwords and tokens are redacted before anything is written — logs
 are append-only and often shipped off-box, so a secret that reaches one is a
 secret that has to be rotated.
 
+## Bulk import
+
+`POST /admin/import/{documents|services|rules}` takes an array of rows and,
+by default, **only tells you what it would do**. Pass `dryRun: false` to write.
+
+Rows reference content by **slug**, never ObjectId — the same shape as
+`seed/seedData.js`, so one file works for both seeding and importing, stays
+readable in review, and imports into any environment. Nobody can proofread
+`507f1f77bcf86cd799439011`.
+
+Three properties are the whole point:
+
+- **All or nothing.** The file is fully analysed first and *every* problem is
+  reported together. If one row is bad, none are written — including the good
+  ones. A half-imported catalogue is worse than a rejected file.
+- **A row is the record, not a patch.** Fields you leave out reset to their
+  defaults, exactly as the seeder behaves. "Blank" in a spreadsheet could mean
+  "unchanged" or "clear it", and only one of those can be the rule.
+- **Writes go through the ordinary services.** `upsertRule` is what runs, so an
+  import bumps versions, writes changelog entries, resets verification, flags
+  affected saved checklists and emails their owners. An importer writing to the
+  models directly would skip all of that silently.
+
+Rules a human has marked `verified` are **skipped, never overwritten** — the
+same stance the seeder takes. Verification is the most expensive work in the
+product and a bulk file is unreviewed by definition.
+
+Unknown fields are rejected rather than ignored: in a two-hundred-row file,
+nobody re-reads every line to notice that `mandotory` never took effect.
+
+The admin page at `/admin/import` ships editable templates per type, parses CSV
+client-side for the flat `documents` type, and will not show the write button
+until a dry run has come back clean.
+
 ## Caching
 
 The rules engine's output is memoised in a bounded LRU (`utils/checklistCache`)
@@ -235,20 +349,31 @@ keyed on a hash of `(serviceSlug, action, state, answers)` — the answer is
 identical until an editor changes something, but recomputing it costs a service
 lookup, a rule resolution, condition evaluation and a document hydration query.
 
-Invalidation is explicit, and the one-hour TTL is only a backstop for the case
-nobody thought of:
+**Every editor action clears the whole cache.** There used to be a targeted
+`invalidateService(slug)`, and while an entry held one service's own rule it
+was correct. It is not any more, for two reasons:
 
-- a **rule** upsert, delete or verification clears that service
-- a **service** update or delete clears that service
-- a **document** update clears **everything** — a document is shared across
-  every rule that references it, and correcting a dead official link is exactly
-  the edit that must take effect immediately
+- a **document** is shared by every rule that references it, and the cached
+  result carries its name, issuing body and official URL
+- a **prerequisite chain** embeds whole other services — their fees, timelines
+  and document counts — inside a checklist for this one, so a passport entry
+  holds a copy of the Aadhaar rule's figures
 
-`alreadyHave` is deliberately not part of the key: it only decides how the same
-items are split into held and needed, and folding it in would give every
-distinct set of held documents its own entry. Failures are never cached, so
-publishing a service is visible at once. Multi-instance deployments would need
-Redis instead — this cache is per-process.
+Working out which entries a given edit actually reached would mean scanning
+every rule and every chain. Clearing everything costs a few seconds of
+recomputation and cannot be wrong; editor actions are rare, and a stale fee
+shown to someone at a counter is not the place to save a query. The targeted
+function was **deleted rather than left unused**, because it still reads as
+correct at a call site.
+
+The one-hour TTL is only a backstop for the case nobody thought of.
+
+`alreadyHave` and `targetDate` are deliberately not part of the key. The first
+only decides how the same items are split into held and needed; the second
+produces a plan relative to *today*, which a cache entry outliving midnight
+would get wrong. Both are applied per request, after the lookup. Failures are
+never cached, so publishing a service is visible at once. Multi-instance
+deployments would need Redis instead — this cache is per-process.
 
 ## Input handling
 

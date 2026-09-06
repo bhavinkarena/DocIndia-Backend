@@ -20,8 +20,27 @@ const DocumentModel = require("../models/document.model");
 const Rule = require("../models/rule.model");
 const Changelog = require("../models/changelog.model");
 
-const { documents, services, rules } = require("./seedData");
+const seedData = require("./seedData");
+const { loadContentPacks } = require("./contentPacks");
 const logger = require("../utils/logger");
+
+/**
+ * The bootstrap set plus every content pack under `content/`.
+ *
+ * Packs exist because `seedData.js` was already 1,300 lines at eight services
+ * and the catalogue is meant to reach forty. Splitting them by category keeps
+ * each file reviewable, and merging here rather than importing them separately
+ * keeps **one** command that produces a complete environment — otherwise a
+ * fresh clone gets eight services and nobody finds out why.
+ *
+ * A pack is exactly the bulk-import format, so the same file can be seeded on
+ * a new environment or imported through `/admin/import` on a running one.
+ */
+const packs = loadContentPacks();
+
+const documents = [...seedData.documents, ...packs.documents];
+const services = [...seedData.services, ...packs.services];
+const rules = [...seedData.rules, ...packs.rules];
 
 // Same logger as the server, so a seed run inside a deploy hook lands in the
 // same stream as everything else. In development pino-pretty renders it as the
@@ -129,6 +148,7 @@ const resolveDocuments = (entries, documentIds, context) =>
     return {
       documentId,
       mandatory: entry.mandatory !== false,
+      belongsTo: entry.belongsTo || "self",
       note: entry.note || "",
     };
   });

@@ -1,0 +1,196 @@
+{
+  "_readme": [
+    "State overrides — UNVERIFIED SCAFFOLD.",
+    "",
+    "There are deliberately few of these. An override is for content that",
+    "genuinely differs, not for content that merely happens somewhere else.",
+    "Where only the portal changes — income, caste and domicile certificates —",
+    "the national rule carries state-conditional process steps instead, so the",
+    "document list stays defined once. Ten near-identical rules differing in a",
+    "URL is exactly what the national-default model exists to prevent.",
+    "",
+    "What earns an override is a different DOCUMENT SET. Land records are the",
+    "clearest case: a 7/12 extract, an RTC and a khatauni are different records",
+    "held in different systems under different names, and mutation asks for",
+    "different things alongside them.",
+    "",
+    "Confirm every line against the state's own revenue portal before",
+    "publishing. See content/README.md."
+  ],
+
+  "documents": [],
+  "services": [],
+
+  "rules": [
+    {
+      "serviceSlug": "property-mutation",
+      "action": "new",
+      "state": "maharashtra",
+      "summary": "Maharashtra override — 7/12 and Index-2 via Mahabhulekh",
+      "baseDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "land-record-extract", "mandatory": true, "note": "The 7/12 extract (satbara utara), or a property card for urban land." },
+        { "slug": "property-card", "mandatory": true, "note": "Index-2, the sub-registrar's abstract of the registered deed." },
+        { "slug": "property-tax-receipt", "mandatory": true, "note": "Showing no arrears." },
+        { "slug": "affidavit", "mandatory": true, "note": "On stamp paper, with an indemnity bond." }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "After a purchase",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "purchase" }],
+          "documents": [
+            { "slug": "sale-deed", "mandatory": true },
+            { "slug": "stamp-duty-receipt", "mandatory": true }
+          ]
+        },
+        {
+          "label": "After an inheritance",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "inheritance" }],
+          "documents": [
+            { "slug": "death-certificate", "mandatory": true },
+            { "slug": "legal-heir-certificate", "mandatory": true, "note": "Or the varasa nond (heirship entry) recorded by the talathi." },
+            { "slug": "title-deed", "mandatory": true, "note": "In the deceased's name." }
+          ]
+        },
+        {
+          "label": "Gifted property",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "gift" }],
+          "documents": [{ "slug": "sale-deed", "mandatory": true, "note": "The registered gift deed." }]
+        }
+      ],
+      "processSteps": [
+        { "title": "Apply for e-Mutation on Mahabhulekh", "detail": "Rural land goes through the talathi; urban property through the municipal corporation.", "mode": "either", "url": "https://bhulekh.mahabhumi.gov.in/", "order": 1, "minDays": 1, "maxDays": 7, "fees": [{ "label": "Mutation fee", "amount": 100, "maxAmount": 1000, "isEstimate": true, "order": 1 }] },
+        { "title": "Talathi records the mutation entry (feri)", "mode": "either", "order": 2, "minDays": 15, "maxDays": 45 },
+        { "title": "Objection period, then certification by the Circle Officer", "detail": "Notices go to everyone named in the record before the entry is certified.", "mode": "either", "order": 3, "minDays": 15, "maxDays": 90 }
+      ]
+    },
+    {
+      "serviceSlug": "property-mutation",
+      "action": "new",
+      "state": "karnataka",
+      "summary": "Karnataka override — RTC and khata transfer",
+      "baseDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "land-record-extract", "mandatory": true, "note": "The RTC (Pahani) for agricultural land, from Bhoomi." },
+        { "slug": "property-card", "mandatory": true, "note": "The khata certificate and khata extract for urban property." },
+        { "slug": "property-tax-receipt", "mandatory": true, "note": "Paid up to the current year." },
+        { "slug": "affidavit", "mandatory": true }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "After a purchase",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "purchase" }],
+          "documents": [
+            { "slug": "sale-deed", "mandatory": true },
+            { "slug": "encumbrance-certificate", "mandatory": true, "note": "Karnataka asks for a current EC alongside the deed." }
+          ]
+        },
+        {
+          "label": "After an inheritance",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "inheritance" }],
+          "documents": [
+            { "slug": "death-certificate", "mandatory": true },
+            { "slug": "legal-heir-certificate", "mandatory": true, "note": "The family tree issued by the tahsildar." },
+            { "slug": "title-deed", "mandatory": true }
+          ]
+        },
+        {
+          "label": "Gifted property",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "gift" }],
+          "documents": [{ "slug": "sale-deed", "mandatory": true, "note": "The registered gift deed." }]
+        }
+      ],
+      "processSteps": [
+        { "title": "Apply on Bhoomi for agricultural land, or to the local body for khata transfer", "detail": "Urban khata transfer goes through the municipal corporation — BBMP in Bengaluru — under the Sakala service guarantee.", "mode": "either", "url": "https://landrecords.karnataka.gov.in/", "order": 1, "minDays": 1, "maxDays": 7, "fees": [{ "label": "Khata transfer fee", "amount": 200, "maxAmount": 2000, "isEstimate": true, "order": 1 }], "fee": "Urban khata transfer is often charged as a percentage of the stamp duty paid" },
+        { "title": "Notice period and verification", "mode": "either", "order": 2, "minDays": 15, "maxDays": 45 },
+        { "title": "Record is updated and the new khata issued", "detail": "Sakala sets a statutory time limit — ask for the acknowledgement number and hold them to it.", "mode": "either", "order": 3, "minDays": 15, "maxDays": 60 }
+      ]
+    },
+    {
+      "serviceSlug": "property-mutation",
+      "action": "new",
+      "state": "uttar-pradesh",
+      "summary": "Uttar Pradesh override — dakhil kharij against the khatauni",
+      "baseDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "land-record-extract", "mandatory": true, "note": "The khatauni (record of rights) from UP Bhulekh." },
+        { "slug": "property-tax-receipt", "mandatory": false, "note": "For urban property under a nagar nigam." },
+        { "slug": "affidavit", "mandatory": true, "note": "On stamp paper, with an indemnity bond." }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "After a purchase",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "purchase" }],
+          "documents": [
+            { "slug": "sale-deed", "mandatory": true, "note": "The registered bainama." },
+            { "slug": "stamp-duty-receipt", "mandatory": true }
+          ]
+        },
+        {
+          "label": "After an inheritance",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "inheritance" }],
+          "documents": [
+            { "slug": "death-certificate", "mandatory": true },
+            { "slug": "legal-heir-certificate", "mandatory": true, "note": "Or the varasat entry recorded by the lekhpal." },
+            { "slug": "title-deed", "mandatory": true }
+          ]
+        },
+        {
+          "label": "Gifted property",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basis", "operator": "eq", "value": "gift" }],
+          "documents": [{ "slug": "sale-deed", "mandatory": true, "note": "The registered gift deed." }]
+        }
+      ],
+      "processSteps": [
+        { "title": "Apply for dakhil kharij at the tehsil or on UP Bhulekh", "mode": "either", "url": "https://upbhulekh.gov.in/", "order": 1, "minDays": 1, "maxDays": 7, "fees": [{ "label": "Mutation fee", "amount": 20, "maxAmount": 500, "isEstimate": true, "order": 1 }] },
+        { "title": "Lekhpal report and notice to interested parties", "mode": "in-person", "order": 2, "minDays": 15, "maxDays": 60 },
+        { "title": "Order by the tehsildar and update to the khatauni", "mode": "either", "order": 3, "minDays": 30, "maxDays": 120 }
+      ]
+    },
+    {
+      "serviceSlug": "domicile-certificate",
+      "action": "new",
+      "state": "tamil-nadu",
+      "summary": "Tamil Nadu override — issued as a Nativity Certificate",
+      "baseDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "electricity-bill", "mandatory": true, "note": "Proof of residence in Tamil Nadu." },
+        { "slug": "school-leaving-certificate", "mandatory": true, "note": "Tamil Nadu leans on school records as the primary evidence of nativity, rather than a self-declaration." },
+        { "slug": "affidavit", "mandatory": true, "note": "Self-declaration of continuous residence." },
+        { "slug": "passport-size-photograph", "mandatory": true },
+        { "slug": "ration-card", "mandatory": false, "note": "The family card is widely accepted as supporting proof." }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Claiming by birth",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basisOfClaim", "operator": "eq", "value": "birth" }],
+          "documents": [{ "slug": "birth-certificate", "mandatory": true }]
+        },
+        {
+          "label": "Claiming through marriage",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "basisOfClaim", "operator": "eq", "value": "marriage" }],
+          "documents": [
+            { "slug": "marriage-certificate", "mandatory": true },
+            { "slug": "domicile-certificate", "mandatory": true, "belongsTo": "spouse", "note": "Your spouse's nativity certificate." }
+          ]
+        }
+      ],
+      "processSteps": [
+        { "title": "Apply on e-Sevai", "detail": "Tamil Nadu issues this as a Nativity Certificate rather than a domicile certificate — ask for it by that name.", "mode": "either", "url": "https://tnesevai.tn.gov.in/", "order": 1, "minDays": 1, "maxDays": 3, "fees": [{ "label": "Application fee", "amount": 60, "isEstimate": true, "order": 1 }] },
+        { "title": "Verification by the Village Administrative Officer", "mode": "in-person", "order": 2, "minDays": 7, "maxDays": 30 },
+        { "title": "Certificate issued by the Tahsildar", "mode": "either", "order": 3, "minDays": 3, "maxDays": 15 }
+      ]
+    }
+  ]
+}

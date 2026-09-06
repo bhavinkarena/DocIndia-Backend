@@ -1,0 +1,734 @@
+{
+  "_readme": [
+    "Work, business & money content pack — UNVERIFIED SCAFFOLD.",
+    "Registration thresholds, fees and slabs change with every budget and differ",
+    "by state. Every rule seeds unverified and every fee is an estimate. Confirm",
+    "against the department's own portal before publishing. See content/README.md.",
+    "",
+    "professional-tax is scope:\"state\" on purpose. Several large states —",
+    "Uttar Pradesh, Delhi, Haryana and Rajasthan among them — do not levy it at",
+    "all, and listing it nationally would send those users hunting for a",
+    "registration that does not exist. Verify the availableStates list against",
+    "each state's finance department before publishing."
+  ],
+
+  "documents": [
+    {
+      "name": "UAN and EPF Member Details",
+      "slug": "uan-details",
+      "description": "Your Universal Account Number and the member ID printed on your payslip or EPF passbook.",
+      "issuingBody": "Employees' Provident Fund Organisation",
+      "officialUrl": "https://unifiedportal-mem.epfindia.gov.in/",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "The UAN stays with you for life; the member ID changes with each employer."
+    },
+    {
+      "name": "GST Registration Certificate",
+      "slug": "gst-certificate",
+      "description": "Certificate of registration showing your GSTIN.",
+      "issuingBody": "Goods and Services Tax Network",
+      "officialUrl": "https://www.gst.gov.in/",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "obtainedViaSlug": "gst-registration",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "Udyam Registration Certificate",
+      "slug": "udyam-certificate",
+      "description": "The MSME registration certificate, replacing the old Udyog Aadhaar.",
+      "issuingBody": "Ministry of Micro, Small and Medium Enterprises",
+      "officialUrl": "https://udyamregistration.gov.in/",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "obtainedViaSlug": "udyam-registration",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "Shop & Establishment Certificate",
+      "slug": "shop-establishment-certificate",
+      "description": "State licence to run a commercial premises, often called a Gumasta.",
+      "issuingBody": "State Labour Department",
+      "hasExpiry": true,
+      "typicalValidity": "1 to 5 years depending on the state",
+      "copiesRequired": 1,
+      "obtainedViaSlug": "shop-establishment",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "FSSAI Licence or Registration",
+      "slug": "fssai-certificate",
+      "description": "Food business registration or licence, depending on turnover.",
+      "issuingBody": "Food Safety and Standards Authority of India",
+      "officialUrl": "https://foscos.fssai.gov.in/",
+      "hasExpiry": true,
+      "typicalValidity": "1 to 5 years, as chosen at application",
+      "copiesRequired": 1,
+      "obtainedViaSlug": "fssai-licence",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "Digital Signature Certificate (DSC)",
+      "slug": "digital-signature-certificate",
+      "description": "A class-3 DSC on a USB token, needed to sign statutory filings for companies and LLPs.",
+      "issuingBody": "Licensed certifying authority",
+      "hasExpiry": true,
+      "typicalValidity": "1 to 3 years",
+      "copiesRequired": 1
+    },
+    {
+      "name": "Partnership Deed or Incorporation Certificate",
+      "slug": "constitution-document",
+      "description": "The document that establishes the business — partnership deed, LLP agreement, or certificate of incorporation.",
+      "issuingBody": "Registrar of Firms / Registrar of Companies",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "A sole proprietor has none of these; their own identity documents stand in for it."
+    },
+    {
+      "name": "Family Member Details",
+      "slug": "family-member-details",
+      "description": "Names, dates of birth and Aadhaar numbers of the dependants being covered.",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "A separate registry entry from the applicant's own Aadhaar, so the two do not union into one row."
+    },
+    {
+      "name": "Property Tax Receipt",
+      "slug": "property-tax-receipt",
+      "description": "The latest paid municipal property tax bill for the premises.",
+      "issuingBody": "Municipal Corporation",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "validityWindow": "Usually the most recent assessment year"
+    },
+    {
+      "name": "Premises NOC from Owner",
+      "slug": "premises-noc",
+      "description": "A no-objection letter from the landlord permitting business use of the premises.",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "Asked for whenever the applicant does not own the premises."
+    },
+    {
+      "name": "Food Safety Management Plan",
+      "slug": "food-safety-plan",
+      "description": "A short written plan covering hygiene, storage and pest control.",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "Required for FSSAI licences rather than basic registrations."
+    },
+    {
+      "name": "Water Test Report",
+      "slug": "water-test-report",
+      "description": "Potability analysis of the water used in food preparation, from a recognised lab.",
+      "issuingBody": "NABL-accredited laboratory",
+      "hasExpiry": true,
+      "typicalValidity": "Usually accepted for a year",
+      "copiesRequired": 1
+    }
+  ],
+
+  "services": [
+    {
+      "label": "EPF (Provident Fund)",
+      "slug": "epfo",
+      "description": "Withdraw your provident fund, transfer it to a new employer, or correct your KYC details.",
+      "authority": "Employees' Provident Fund Organisation",
+      "scope": "national",
+      "icon": "piggy-bank",
+      "order": 40,
+      "keywords": ["pf", "epf", "provident fund", "pf withdrawal", "pf transfer", "uan", "pf claim", "pf nikalna", "epfo"],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Withdraw my PF",
+          "order": 1,
+          "questions": [
+            {
+              "key": "withdrawalType",
+              "label": "What kind of withdrawal?",
+              "type": "single-select",
+              "required": true,
+              "helpText": "A full withdrawal is only allowed once you have been out of work for the required period.",
+              "order": 1,
+              "options": [
+                { "value": "full", "label": "Full — I have left the job" },
+                { "value": "advance", "label": "Advance — medical, housing, education or marriage" }
+              ]
+            },
+            {
+              "key": "kycVerified",
+              "label": "Are your Aadhaar and bank details already verified on the UAN portal?",
+              "type": "boolean",
+              "required": true,
+              "helpText": "Unverified KYC is the single most common reason a claim is rejected.",
+              "order": 2
+            }
+          ]
+        },
+        {
+          "key": "transfer",
+          "label": "Transfer my PF to a new employer",
+          "order": 2,
+          "questions": []
+        },
+        {
+          "key": "correction",
+          "label": "Correct my name or date of birth",
+          "order": 3,
+          "questions": []
+        }
+      ]
+    },
+    {
+      "label": "ESIC Registration",
+      "slug": "esic-registration",
+      "description": "Employees' State Insurance registration, for employers and for insured workers.",
+      "authority": "Employees' State Insurance Corporation",
+      "scope": "national",
+      "icon": "stethoscope",
+      "order": 41,
+      "keywords": ["esic", "esi", "employee state insurance", "esic registration", "esic card", "pehchan card"],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Register",
+          "order": 1,
+          "questions": [
+            {
+              "key": "registeringAs",
+              "label": "Who is registering?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                { "value": "employer", "label": "An employer registering the establishment" },
+                { "value": "employee", "label": "An employee being added by their employer" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "GST Registration",
+      "slug": "gst-registration",
+      "description": "Register for GST, change your details, or cancel a registration.",
+      "authority": "Goods and Services Tax Network",
+      "scope": "national",
+      "icon": "receipt",
+      "order": 42,
+      "keywords": ["gst", "gst registration", "gstin", "gst number", "register for gst", "gst cancel", "goods and services tax"],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Register for GST",
+          "order": 1,
+          "questions": [
+            {
+              "key": "businessType",
+              "label": "How is the business constituted?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                { "value": "proprietor", "label": "Sole proprietorship" },
+                { "value": "partnership", "label": "Partnership or LLP" },
+                { "value": "company", "label": "Private limited or other company" }
+              ]
+            },
+            {
+              "key": "premisesOwned",
+              "label": "Do you own the business premises?",
+              "type": "boolean",
+              "required": true,
+              "order": 2
+            }
+          ]
+        },
+        { "key": "update", "label": "Change registered details", "order": 2, "questions": [] },
+        { "key": "cancel", "label": "Cancel a registration", "order": 3, "questions": [] }
+      ]
+    },
+    {
+      "label": "Udyam (MSME) Registration",
+      "slug": "udyam-registration",
+      "description": "Register a micro, small or medium enterprise. Free, online, and needs no supporting documents.",
+      "authority": "Ministry of Micro, Small and Medium Enterprises",
+      "scope": "national",
+      "icon": "factory",
+      "order": 43,
+      "keywords": ["udyam", "msme", "msme registration", "udyog aadhaar", "small business registration", "udyam certificate"],
+      "actions": [
+        { "key": "new", "label": "Register an enterprise", "order": 1, "questions": [] },
+        { "key": "update", "label": "Update enterprise details", "order": 2, "questions": [] }
+      ]
+    },
+    {
+      "label": "FSSAI Food Licence",
+      "slug": "fssai-licence",
+      "description": "Registration or licence to run any food business, from a stall to a factory.",
+      "authority": "Food Safety and Standards Authority of India",
+      "scope": "national",
+      "icon": "utensils",
+      "order": 44,
+      "keywords": ["fssai", "food licence", "food license", "restaurant licence", "food registration", "fssai number", "khaad licence"],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Apply for a licence or registration",
+          "order": 1,
+          "questions": [
+            {
+              "key": "scale",
+              "label": "What is the annual turnover?",
+              "type": "single-select",
+              "required": true,
+              "helpText": "This decides whether you need a basic registration or a full licence.",
+              "order": 1,
+              "options": [
+                { "value": "basic", "label": "Under ₹12 lakh — basic registration" },
+                { "value": "state", "label": "₹12 lakh to ₹20 crore — state licence" },
+                { "value": "central", "label": "Over ₹20 crore, or importing/exporting — central licence" }
+              ]
+            }
+          ]
+        },
+        { "key": "renew", "label": "Renew a licence", "order": 2, "questions": [] }
+      ]
+    },
+    {
+      "label": "Shop & Establishment Registration",
+      "slug": "shop-establishment",
+      "description": "The state licence to operate commercial premises, often called a Gumasta licence.",
+      "authority": "State Labour Department",
+      "scope": "national",
+      "icon": "store",
+      "order": 45,
+      "keywords": ["shop and establishment", "gumasta", "shop licence", "shop act", "trade licence", "establishment registration"],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Register an establishment",
+          "order": 1,
+          "questions": [
+            {
+              "key": "premisesOwned",
+              "label": "Do you own the premises?",
+              "type": "boolean",
+              "required": true,
+              "order": 1
+            },
+            {
+              "key": "hasEmployees",
+              "label": "Do you employ anyone?",
+              "type": "boolean",
+              "required": true,
+              "order": 2
+            }
+          ]
+        },
+        { "key": "renew", "label": "Renew the registration", "order": 2, "questions": [] }
+      ]
+    },
+    {
+      "label": "Professional Tax Registration",
+      "slug": "professional-tax",
+      "description": "State tax on trades and professions, deducted by employers and paid by the self-employed. Not every state levies it.",
+      "authority": "State Commercial Tax Department",
+      "scope": "state",
+      "availableStates": [
+        "andhra-pradesh", "assam", "bihar", "chhattisgarh", "gujarat",
+        "jharkhand", "karnataka", "kerala", "madhya-pradesh", "maharashtra",
+        "manipur", "meghalaya", "mizoram", "nagaland", "odisha", "puducherry",
+        "sikkim", "tamil-nadu", "telangana", "tripura", "west-bengal"
+      ],
+      "icon": "briefcase",
+      "order": 46,
+      "keywords": ["professional tax", "ptax", "pt registration", "profession tax", "ptrc", "ptec"],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Register for professional tax",
+          "order": 1,
+          "questions": [
+            {
+              "key": "registeringAs",
+              "label": "Are you registering as an employer or for yourself?",
+              "type": "single-select",
+              "required": true,
+              "helpText": "Employers deduct it from staff; the self-employed pay their own.",
+              "order": 1,
+              "options": [
+                { "value": "employer", "label": "As an employer, deducting for staff" },
+                { "value": "self", "label": "For myself, as self-employed" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "e-Shram Card",
+      "slug": "e-shram",
+      "description": "National registration for unorganised workers, giving accident cover and scheme access.",
+      "authority": "Ministry of Labour and Employment",
+      "scope": "national",
+      "icon": "hard-hat",
+      "order": 47,
+      "keywords": ["e-shram", "eshram", "shram card", "labour card", "unorganised worker", "majdoor card"],
+      "actions": [
+        { "key": "new", "label": "Register on e-Shram", "order": 1, "questions": [] }
+      ]
+    }
+  ],
+
+  "rules": [
+    {
+      "serviceSlug": "epfo",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "uan-details", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true, "note": "Must be the one seeded against your UAN." },
+        { "slug": "pan-card", "mandatory": true, "note": "Without it, tax is deducted at a much higher rate on early withdrawals." },
+        { "slug": "bank-account-statement", "mandatory": true, "note": "The account must be in your name and linked to the UAN." },
+        { "slug": "cancelled-cheque", "mandatory": true, "note": "Showing your name, account number and IFSC." }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "KYC not yet verified",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "kycVerified", "operator": "eq", "value": false }],
+          "documents": [{ "slug": "affidavit", "mandatory": false, "note": "Your employer must approve the KYC on the portal before a claim will go through — chase them first." }]
+        },
+        {
+          "label": "Advance withdrawal",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "withdrawalType", "operator": "eq", "value": "advance" }],
+          "documents": [{ "slug": "affidavit", "mandatory": true, "note": "Evidence of the reason — medical estimate, sale agreement, fee demand or wedding card." }]
+        }
+      ],
+      "processSteps": [
+        { "title": "Verify KYC on the UAN portal", "detail": "Aadhaar, PAN and bank details must all show as approved by your employer.", "mode": "online", "url": "https://unifiedportal-mem.epfindia.gov.in/", "order": 1, "minDays": 3, "maxDays": 30, "conditions": [{ "questionKey": "kycVerified", "operator": "eq", "value": false }] },
+        { "title": "File the claim online (Form 19 / 31)", "mode": "online", "url": "https://unifiedportal-mem.epfindia.gov.in/", "order": 2, "minDays": 1, "maxDays": 1, "fees": [{ "label": "Claim filing", "amount": 0, "order": 1 }] },
+        { "title": "Wait for the claim to settle", "detail": "Paid directly into the linked bank account.", "mode": "online", "order": 3, "minDays": 7, "maxDays": 30 }
+      ]
+    },
+    {
+      "serviceSlug": "epfo",
+      "action": "transfer",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "uan-details", "mandatory": true, "note": "The same UAN carries across employers — do not let a second one be created." },
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "bank-account-statement", "mandatory": false }
+      ],
+      "processSteps": [
+        { "title": "File Form 13 on the member portal", "mode": "online", "url": "https://unifiedportal-mem.epfindia.gov.in/", "order": 1, "minDays": 1, "maxDays": 1, "fees": [{ "label": "Transfer request", "amount": 0, "order": 1 }] },
+        { "title": "Approval by the old or new employer", "mode": "online", "order": 2, "minDays": 7, "maxDays": 30 },
+        { "title": "Balance moves to the new account", "mode": "online", "order": 3, "minDays": 7, "maxDays": 30 }
+      ]
+    },
+    {
+      "serviceSlug": "epfo",
+      "action": "correction",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "uan-details", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true, "note": "EPFO corrects its record to match Aadhaar, so fix Aadhaar first if that is what is wrong." },
+        { "slug": "tenth-marksheet", "mandatory": false, "note": "Supports a date-of-birth correction." }
+      ],
+      "processSteps": [
+        { "title": "Raise a joint declaration with your employer", "mode": "online", "url": "https://unifiedportal-mem.epfindia.gov.in/", "order": 1, "minDays": 7, "maxDays": 45 },
+        { "title": "EPFO verifies and updates the record", "mode": "online", "order": 2, "minDays": 15, "maxDays": 60 }
+      ]
+    },
+    {
+      "serviceSlug": "esic-registration",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "bank-account-statement", "mandatory": true },
+        { "slug": "passport-size-photograph", "mandatory": true }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Registering as an employer",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "registeringAs", "operator": "eq", "value": "employer" }],
+          "documents": [
+            { "slug": "pan-card", "mandatory": true, "note": "Of the business." },
+            { "slug": "constitution-document", "mandatory": true },
+            { "slug": "shop-establishment-certificate", "mandatory": true },
+            { "slug": "electricity-bill", "mandatory": true, "note": "Proof of the establishment's address." }
+          ]
+        },
+        {
+          "label": "Being added as an employee",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "registeringAs", "operator": "eq", "value": "employee" }],
+          "documents": [
+            { "slug": "salary-slip", "mandatory": false, "note": "ESIC applies below a monthly wage ceiling." },
+            { "slug": "family-member-details", "mandatory": true, "note": "Dependants are covered too, so their names, dates of birth and Aadhaar numbers are captured at registration." }
+          ]
+        }
+      ],
+      "processSteps": [
+        { "title": "Register on the ESIC portal", "mode": "online", "url": "https://www.esic.gov.in/", "order": 1, "minDays": 1, "maxDays": 7, "fees": [{ "label": "Registration", "amount": 0, "order": 1 }] },
+        { "title": "Biometric enrolment for the Pehchan card", "mode": "in-person", "order": 2, "minDays": 7, "maxDays": 30, "conditions": [{ "questionKey": "registeringAs", "operator": "eq", "value": "employee" }] }
+      ]
+    },
+    {
+      "serviceSlug": "gst-registration",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "pan-card", "mandatory": true, "note": "Of the business — GST registration is built on the PAN." },
+        { "slug": "aadhaar-card", "mandatory": true, "note": "Of the proprietor, partners or directors, for e-KYC authentication." },
+        { "slug": "passport-size-photograph", "mandatory": true },
+        { "slug": "bank-account-statement", "mandatory": true, "note": "Or a cancelled cheque showing the business account." },
+        { "slug": "cancelled-cheque", "mandatory": false }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Partnership, LLP or company",
+          "matchType": "any",
+          "conditions": [
+            { "questionKey": "businessType", "operator": "eq", "value": "partnership" },
+            { "questionKey": "businessType", "operator": "eq", "value": "company" }
+          ],
+          "documents": [
+            { "slug": "constitution-document", "mandatory": true },
+            { "slug": "digital-signature-certificate", "mandatory": true, "note": "Companies and LLPs must sign with a DSC; a proprietor can use an Aadhaar OTP." }
+          ]
+        },
+        {
+          "label": "Premises you own",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "premisesOwned", "operator": "eq", "value": true }],
+          "documents": [{ "slug": "property-tax-receipt", "mandatory": true, "note": "Or the electricity bill, as proof of ownership." }]
+        },
+        {
+          "label": "Rented premises",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "premisesOwned", "operator": "eq", "value": false }],
+          "documents": [
+            { "slug": "rent-agreement", "mandatory": true },
+            { "slug": "premises-noc", "mandatory": true, "belongsTo": "landlord", "note": "From the landlord, consenting to business use." }
+          ]
+        }
+      ],
+      "processSteps": [
+        { "title": "File Part A on the GST portal", "detail": "PAN, mobile and email are verified by OTP and you get a TRN.", "mode": "online", "url": "https://www.gst.gov.in/", "order": 1, "minDays": 1, "maxDays": 1, "fees": [{ "label": "Registration", "amount": 0, "order": 1 }] },
+        { "title": "File Part B with the documents", "mode": "online", "order": 2, "minDays": 1, "maxDays": 3 },
+        { "title": "Aadhaar authentication or physical verification", "detail": "Skipping Aadhaar authentication triggers a site visit and a longer wait.", "mode": "either", "order": 3, "minDays": 3, "maxDays": 21 },
+        { "title": "GSTIN is issued", "mode": "online", "order": 4, "minDays": 3, "maxDays": 15 }
+      ]
+    },
+    {
+      "serviceSlug": "gst-registration",
+      "action": "update",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "gst-certificate", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "rent-agreement", "mandatory": false, "note": "If the change is to the place of business." }
+      ],
+      "processSteps": [
+        { "title": "File the amendment on the GST portal", "detail": "Core-field changes need officer approval; others take effect at once.", "mode": "online", "url": "https://www.gst.gov.in/", "order": 1, "minDays": 1, "maxDays": 15, "fees": [{ "label": "Amendment", "amount": 0, "order": 1 }] }
+      ]
+    },
+    {
+      "serviceSlug": "gst-registration",
+      "action": "cancel",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "gst-certificate", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "affidavit", "mandatory": false, "note": "Stating the reason for closure." }
+      ],
+      "processSteps": [
+        { "title": "Clear all pending returns and dues", "detail": "Cancellation is refused while any return is outstanding.", "mode": "online", "order": 1, "minDays": 1, "maxDays": 30 },
+        { "title": "File the cancellation application", "mode": "online", "url": "https://www.gst.gov.in/", "order": 2, "minDays": 1, "maxDays": 3, "fees": [{ "label": "Cancellation", "amount": 0, "order": 1 }] },
+        { "title": "File the final return (GSTR-10)", "detail": "Due within three months of cancellation.", "mode": "online", "order": 3, "minDays": 1, "maxDays": 90 }
+      ]
+    },
+    {
+      "serviceSlug": "udyam-registration",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true, "note": "Of the proprietor, managing partner or authorised signatory." },
+        { "slug": "pan-card", "mandatory": true, "note": "Of the business." }
+      ],
+      "processSteps": [
+        { "title": "Register on the Udyam portal", "detail": "Free, entirely self-declared, and no documents are uploaded — turnover and investment are pulled from your PAN and GST records.", "mode": "online", "url": "https://udyamregistration.gov.in/", "order": 1, "minDays": 0, "maxDays": 1, "fees": [{ "label": "Registration", "amount": 0, "order": 1 }] },
+        { "title": "Certificate is generated", "mode": "online", "order": 2, "minDays": 0, "maxDays": 2 }
+      ]
+    },
+    {
+      "serviceSlug": "udyam-registration",
+      "action": "update",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "udyam-certificate", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true }
+      ],
+      "processSteps": [
+        { "title": "Update details on the Udyam portal", "mode": "online", "url": "https://udyamregistration.gov.in/", "order": 1, "minDays": 0, "maxDays": 3, "fees": [{ "label": "Update", "amount": 0, "order": 1 }] }
+      ]
+    },
+    {
+      "serviceSlug": "fssai-licence",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "passport-size-photograph", "mandatory": true },
+        { "slug": "electricity-bill", "mandatory": true, "note": "Proof of the premises." }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "State or central licence",
+          "matchType": "any",
+          "conditions": [
+            { "questionKey": "scale", "operator": "eq", "value": "state" },
+            { "questionKey": "scale", "operator": "eq", "value": "central" }
+          ],
+          "documents": [
+            { "slug": "food-safety-plan", "mandatory": true },
+            { "slug": "water-test-report", "mandatory": true },
+            { "slug": "constitution-document", "mandatory": false, "note": "For anything other than a sole proprietorship." },
+            { "slug": "premises-noc", "mandatory": false, "belongsTo": "landlord", "note": "From the landlord, if the premises are rented." }
+          ]
+        }
+      ],
+      "processSteps": [
+        { "title": "Apply on the FoSCoS portal", "mode": "online", "url": "https://foscos.fssai.gov.in/", "order": 1, "minDays": 1, "maxDays": 3, "fees": [{ "label": "Basic registration (per year)", "amount": 100, "isEstimate": true, "order": 1, "conditions": [{ "questionKey": "scale", "operator": "eq", "value": "basic" }] }, { "label": "State licence (per year)", "amount": 2000, "maxAmount": 5000, "isEstimate": true, "order": 2, "conditions": [{ "questionKey": "scale", "operator": "eq", "value": "state" }] }, { "label": "Central licence (per year)", "amount": 7500, "isEstimate": true, "order": 3, "conditions": [{ "questionKey": "scale", "operator": "eq", "value": "central" }] }] },
+        { "title": "Inspection of the premises", "detail": "Licences are inspected; basic registrations usually are not.", "mode": "in-person", "order": 2, "minDays": 7, "maxDays": 45, "conditions": [{ "questionKey": "scale", "operator": "neq", "value": "basic" }] },
+        { "title": "Licence is issued", "mode": "online", "order": 3, "minDays": 7, "maxDays": 60 }
+      ]
+    },
+    {
+      "serviceSlug": "fssai-licence",
+      "action": "renew",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "fssai-certificate", "mandatory": true, "note": "The expiring licence." },
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "water-test-report", "mandatory": false }
+      ],
+      "processSteps": [
+        { "title": "Apply for renewal on FoSCoS", "detail": "Apply before it expires — a lapsed licence means starting again, and trading on one is an offence.", "mode": "online", "url": "https://foscos.fssai.gov.in/", "order": 1, "minDays": 7, "maxDays": 45, "fees": [{ "label": "Renewal (per year)", "amount": 100, "maxAmount": 7500, "isEstimate": true, "order": 1 }] }
+      ]
+    },
+    {
+      "serviceSlug": "shop-establishment",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "pan-card", "mandatory": true },
+        { "slug": "passport-size-photograph", "mandatory": true },
+        { "slug": "electricity-bill", "mandatory": true, "note": "Proof of the premises." }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Rented premises",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "premisesOwned", "operator": "eq", "value": false }],
+          "documents": [
+            { "slug": "rent-agreement", "mandatory": true },
+            { "slug": "premises-noc", "mandatory": true, "belongsTo": "landlord", "note": "From the landlord." }
+          ]
+        },
+        {
+          "label": "Premises you own",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "premisesOwned", "operator": "eq", "value": true }],
+          "documents": [{ "slug": "property-tax-receipt", "mandatory": true }]
+        },
+        {
+          "label": "With employees",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "hasEmployees", "operator": "eq", "value": true }],
+          "documents": [{ "slug": "affidavit", "mandatory": true, "note": "A declared list of employees with their joining dates." }]
+        }
+      ],
+      "processSteps": [
+        { "title": "Apply on the state labour portal", "mode": "either", "order": 1, "minDays": 1, "maxDays": 7, "fees": [{ "label": "Registration fee", "amount": 100, "maxAmount": 2000, "isEstimate": true, "order": 1 }], "fee": "Scales with the number of employees, and varies by state" },
+        { "title": "Certificate is issued", "detail": "Most states issue it without an inspection.", "mode": "either", "order": 2, "minDays": 3, "maxDays": 30 }
+      ]
+    },
+    {
+      "serviceSlug": "shop-establishment",
+      "action": "renew",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "shop-establishment-certificate", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true }
+      ],
+      "processSteps": [
+        { "title": "Apply for renewal before expiry", "mode": "either", "order": 1, "minDays": 3, "maxDays": 30, "fees": [{ "label": "Renewal fee", "amount": 100, "maxAmount": 2000, "isEstimate": true, "order": 1 }] }
+      ]
+    },
+    {
+      "serviceSlug": "professional-tax",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "pan-card", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "electricity-bill", "mandatory": true, "note": "Proof of the business address." },
+        { "slug": "cancelled-cheque", "mandatory": true, "note": "For the account the tax is paid from." }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Registering as an employer",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "registeringAs", "operator": "eq", "value": "employer" }],
+          "documents": [
+            { "slug": "shop-establishment-certificate", "mandatory": true },
+            { "slug": "constitution-document", "mandatory": false }
+          ]
+        }
+      ],
+      "processSteps": [
+        { "title": "Register on the state commercial tax portal", "detail": "Employers need a PTRC; the self-employed need a PTEC. Some businesses need both.", "mode": "online", "order": 1, "minDays": 1, "maxDays": 7, "fees": [{ "label": "Registration", "amount": 0, "maxAmount": 500, "isEstimate": true, "order": 1 }] },
+        { "title": "Certificate is issued", "mode": "online", "order": 2, "minDays": 3, "maxDays": 21 }
+      ]
+    },
+    {
+      "serviceSlug": "e-shram",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — work & money pack",
+      "baseDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true, "note": "The linked mobile number receives the OTP." },
+        { "slug": "bank-account-statement", "mandatory": true, "note": "Benefits are paid into this account." }
+      ],
+      "processSteps": [
+        { "title": "Register on the e-Shram portal or at a CSC", "detail": "Free. Takes a few minutes with an Aadhaar OTP; a CSC can do it if the linked number is lost.", "mode": "either", "url": "https://eshram.gov.in/", "order": 1, "minDays": 0, "maxDays": 1, "fees": [{ "label": "Registration", "amount": 0, "order": 1 }] },
+        { "title": "UAN card is generated", "mode": "online", "order": 2, "minDays": 0, "maxDays": 2 }
+      ]
+    }
+  ]
+}

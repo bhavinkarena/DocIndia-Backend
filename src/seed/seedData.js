@@ -7,6 +7,12 @@
  * is NOT a verified statement of what any government body currently requires,
  * and the fees and timelines below are indicative only. Someone has to sit
  * down with the official sources and confirm each line before publishing.
+ *
+ * That applies double now that fees and durations are structured numbers. A
+ * figure that gets added into a total and printed as "₹3,500" reads as a
+ * computed fact in a way that "indicative: around ₹1,500" never did. Anything
+ * not confirmed against the official schedule carries `isEstimate: true`, and
+ * the ones that don't are the ones that most need checking.
  */
 
 /* ------------------------------------------------------------------ *
@@ -103,6 +109,8 @@ const documents = [
     name: "Birth Certificate",
     slug: "birth-certificate",
     description: "Issued by the municipal corporation or gram panchayat.",
+    obtainedViaSlug: "birth-certificate",
+    obtainedViaAction: "new",
     issuingBody: "Municipal Corporation / Registrar of Births & Deaths",
     officialUrl: "https://crsorgi.gov.in/",
     hasExpiry: false,
@@ -214,6 +222,8 @@ const documents = [
   {
     name: "Income Certificate",
     slug: "income-certificate",
+    obtainedViaSlug: "income-certificate",
+    obtainedViaAction: "new",
     description: "Issued by the revenue authority, used for scheme eligibility.",
     issuingBody: "Tehsildar / Revenue Department",
     officialUrl: "",
@@ -224,6 +234,8 @@ const documents = [
   {
     name: "Marriage Certificate",
     slug: "marriage-certificate",
+    obtainedViaSlug: "marriage-registration",
+    obtainedViaAction: "new",
     description: "Required when applying for a name change after marriage.",
     issuingBody: "Registrar of Marriages",
     officialUrl: "",
@@ -234,6 +246,8 @@ const documents = [
   {
     name: "Gazette Notification (Name Change)",
     slug: "gazette-name-change",
+    obtainedViaSlug: "name-change-gazette",
+    obtainedViaAction: "new",
     description: "Official publication of a change of name.",
     issuingBody: "Department of Publication, Government of India",
     officialUrl: "https://egazette.gov.in/",
@@ -731,7 +745,7 @@ const rules = [
         conditions: [{ questionKey: "applicantAge", operator: "eq", value: "under-5" }],
         documents: [
           { slug: "birth-certificate", mandatory: true },
-          { slug: "aadhaar-card", mandatory: true, note: "Of one parent, for linkage." },
+          { slug: "aadhaar-card", mandatory: true, belongsTo: "parent", note: "The child is linked to a parent's Aadhaar at enrolment." },
         ],
       },
       {
@@ -755,9 +769,9 @@ const rules = [
     ],
     processSteps: [
       { title: "Book an appointment", detail: "Find and book a slot at an Aadhaar Seva Kendra.", mode: "online", url: "https://appointments.uidai.gov.in/", order: 1 },
-      { title: "Visit the centre with your documents", detail: "Originals are checked and returned.", mode: "in-person", fee: "Free for first enrolment", order: 2 },
+      { title: "Visit the centre with your documents", detail: "Originals are checked and returned.", mode: "in-person", fees: [{ label: "First enrolment", amount: 0, order: 1 }], order: 2 },
       { title: "Give biometrics", detail: "Photograph, fingerprints and iris scan are captured.", mode: "in-person", order: 3 },
-      { title: "Collect the acknowledgement slip", detail: "Keep the enrolment ID to track status.", mode: "in-person", timeline: "Aadhaar usually generated within 90 days", order: 4 },
+      { title: "Collect the acknowledgement slip", detail: "Keep the enrolment ID to track status.", mode: "in-person", minDays: 30, maxDays: 90, order: 4 },
     ],
   },
   {
@@ -808,8 +822,8 @@ const rules = [
     ],
     processSteps: [
       { title: "Check what can be done online", detail: "Address updates can usually be done through myAadhaar; biometrics cannot.", mode: "online", url: "https://myaadhaar.uidai.gov.in/", order: 1 },
-      { title: "Submit the update request", mode: "either", fee: "Indicative: around ₹50 for a demographic update", order: 2 },
-      { title: "Keep the URN", detail: "The Update Request Number is how you track it.", mode: "either", timeline: "Typically a few weeks", order: 3 },
+      { title: "Submit the update request", mode: "either", fees: [{ label: "Demographic update", amount: 50, isEstimate: true, order: 1 }], order: 2 },
+      { title: "Keep the URN", detail: "The Update Request Number is how you track it.", mode: "either", minDays: 14, maxDays: 30, order: 3 },
     ],
   },
 
@@ -842,8 +856,8 @@ const rules = [
     processSteps: [
       { title: "Apply online", detail: "Through the Income Tax e-filing portal or an authorised agency.", mode: "online", url: "https://www.incometax.gov.in/iec/foportal/", order: 1 },
       { title: "Complete e-KYC or send documents", mode: "either", order: 2 },
-      { title: "Pay the fee", mode: "online", fee: "Indicative: around ₹107 for an Indian address", order: 3 },
-      { title: "Receive your PAN", mode: "either", timeline: "e-PAN often within days; physical card longer", order: 4 },
+      { title: "Pay the fee", mode: "online", fees: [{ label: "Application fee (Indian address)", amount: 107, isEstimate: true, order: 1 }], order: 3 },
+      { title: "Receive your PAN", detail: "The e-PAN arrives well before the physical card does.", mode: "either", minDays: 15, maxDays: 20, order: 4 },
     ],
   },
   {
@@ -871,7 +885,7 @@ const rules = [
     ],
     processSteps: [
       { title: "Submit a correction request", mode: "online", url: "https://www.incometax.gov.in/iec/foportal/", order: 1 },
-      { title: "Pay the processing fee", mode: "online", fee: "Indicative: similar to a new PAN application", order: 2 },
+      { title: "Pay the processing fee", mode: "online", fees: [{ label: "Correction fee", amount: 107, isEstimate: true, order: 1 }], minDays: 15, maxDays: 20, order: 2 },
     ],
   },
   {
@@ -885,7 +899,7 @@ const rules = [
     ],
     conditionalBlocks: [],
     processSteps: [
-      { title: "Request a reprint", detail: "Your PAN number stays the same — only the card is reissued.", mode: "online", url: "https://www.incometax.gov.in/iec/foportal/", fee: "Indicative: around ₹50", order: 1 },
+      { title: "Request a reprint", detail: "Your PAN number stays the same — only the card is reissued.", mode: "online", url: "https://www.incometax.gov.in/iec/foportal/", fees: [{ label: "Reprint fee", amount: 50, isEstimate: true, order: 1 }], minDays: 15, maxDays: 20, order: 1 },
     ],
   },
 
@@ -906,8 +920,8 @@ const rules = [
         matchType: "all",
         conditions: [{ questionKey: "applicantAge", operator: "eq", value: true }],
         documents: [
-          { slug: "indian-passport", mandatory: false, note: "Parents' passports, if they hold them." },
-          { slug: "affidavit", mandatory: false, note: "Annexure declaration signed by parents." },
+          { slug: "indian-passport", mandatory: false, belongsTo: "parent", note: "Both parents' passports, if they hold them." },
+          { slug: "affidavit", mandatory: false, note: "Annexure D, signed by both parents." },
         ],
       },
       {
@@ -928,10 +942,57 @@ const rules = [
     ],
     processSteps: [
       { title: "Register on Passport Seva", mode: "online", url: "https://www.passportindia.gov.in/", order: 1 },
-      { title: "Fill the form and pay", mode: "online", fee: "Indicative: around ₹1,500 for a 36-page normal application; Tatkal costs more", order: 2 },
+      {
+        title: "Fill the form and pay",
+        mode: "online",
+        order: 2,
+        // Three lines, two of them gated: an adult on the normal route sees
+        // ₹1,500, a minor sees ₹1,000, and only a Tatkal applicant is shown
+        // the surcharge. Nobody is asked to work out which row is theirs.
+        fees: [
+          {
+            label: "Application fee (36-page, 10-year)",
+            amount: 1500,
+            order: 1,
+            conditions: [{ questionKey: "applicantAge", operator: "eq", value: false }],
+          },
+          {
+            label: "Application fee (minor, 36-page, 5-year)",
+            amount: 1000,
+            order: 1,
+            conditions: [{ questionKey: "applicantAge", operator: "eq", value: true }],
+          },
+          {
+            label: "Tatkal surcharge",
+            amount: 2000,
+            order: 2,
+            conditions: [{ questionKey: "scheme", operator: "eq", value: "tatkal" }],
+          },
+        ],
+      },
       { title: "Book an appointment at a PSK or POPSK", mode: "online", order: 3 },
       { title: "Attend with original documents", detail: "Originals are verified and returned.", mode: "in-person", order: 4 },
-      { title: "Police verification", detail: "Usually happens after the appointment.", mode: "in-person", timeline: "Normal: often a few weeks; Tatkal is faster", order: 5 },
+      // Two steps rather than one with a caveat: the durations differ by an
+      // order of magnitude, and a caveat in prose is not something a deadline
+      // can be planned against.
+      {
+        title: "Police verification",
+        detail: "Carried out at your registered address after the appointment.",
+        mode: "in-person",
+        minDays: 21,
+        maxDays: 42,
+        order: 5,
+        conditions: [{ questionKey: "scheme", operator: "eq", value: "normal" }],
+      },
+      {
+        title: "Post-issue police verification",
+        detail: "Tatkal issues the passport first and verifies afterwards.",
+        mode: "in-person",
+        minDays: 3,
+        maxDays: 7,
+        order: 5,
+        conditions: [{ questionKey: "scheme", operator: "eq", value: "tatkal" }],
+      },
     ],
   },
   {
@@ -956,8 +1017,8 @@ const rules = [
     ],
     processSteps: [
       { title: "Apply for re-issue on Passport Seva", mode: "online", url: "https://www.passportindia.gov.in/", order: 1 },
-      { title: "Pay the fee and book an appointment", mode: "online", fee: "Indicative: similar to a fresh application", order: 2 },
-      { title: "Attend the appointment", mode: "in-person", timeline: "Often faster than a first application", order: 3 },
+      { title: "Pay the fee and book an appointment", mode: "online", fees: [{ label: "Re-issue fee (36-page, 10-year)", amount: 1500, isEstimate: true, order: 1 }], order: 2 },
+      { title: "Attend the appointment", detail: "Usually faster than a first application — police verification is often not repeated.", mode: "in-person", minDays: 15, maxDays: 30, order: 3 },
     ],
   },
   {
@@ -1004,8 +1065,8 @@ const rules = [
     ],
     processSteps: [
       { title: "Apply on Parivahan Sarathi", mode: "online", url: "https://sarathi.parivahan.gov.in/", order: 1 },
-      { title: "Pay the fee and book a slot", mode: "online", fee: "Varies by state and vehicle class", order: 2 },
-      { title: "Take the test", detail: "Written test for a learner's; driving test for a permanent licence.", mode: "in-person", order: 3 },
+      { title: "Pay the fee and book a slot", mode: "online", fees: [{ label: "Learner's licence fee", amount: 150, isEstimate: true, order: 1 }, { label: "Test fee", amount: 50, isEstimate: true, order: 2 }], fee: "Varies by state and vehicle class", order: 2 },
+      { title: "Take the test", detail: "Written test for a learner's; driving test for a permanent licence.", mode: "in-person", minDays: 1, maxDays: 30, order: 3 },
     ],
   },
   {
@@ -1027,7 +1088,7 @@ const rules = [
     ],
     processSteps: [
       { title: "Apply for renewal on Parivahan", mode: "online", url: "https://sarathi.parivahan.gov.in/", order: 1 },
-      { title: "Visit the RTO if required", mode: "in-person", timeline: "Varies by state", order: 2 },
+      { title: "Visit the RTO if required", mode: "in-person", fees: [{ label: "Renewal fee", amount: 200, isEstimate: true, order: 1 }], minDays: 7, maxDays: 30, fee: "Varies by state", order: 2 },
     ],
   },
   {
@@ -1058,8 +1119,8 @@ const rules = [
     ],
     conditionalBlocks: [],
     processSteps: [
-      { title: "Submit Form 6", mode: "online", url: "https://voters.eci.gov.in/", fee: "Free", order: 1 },
-      { title: "Booth Level Officer verification", mode: "in-person", timeline: "Typically several weeks", order: 2 },
+      { title: "Submit Form 6", mode: "online", url: "https://voters.eci.gov.in/", fees: [{ label: "Enrolment", amount: 0, order: 1 }], order: 1 },
+      { title: "Booth Level Officer verification", mode: "in-person", minDays: 21, maxDays: 60, order: 2 },
     ],
   },
   {
@@ -1091,7 +1152,7 @@ const rules = [
       },
     ],
     processSteps: [
-      { title: "Submit Form 8", mode: "online", url: "https://voters.eci.gov.in/", fee: "Free", order: 1 },
+      { title: "Submit Form 8", mode: "online", url: "https://voters.eci.gov.in/", fees: [{ label: "Update", amount: 0, order: 1 }], order: 1 },
     ],
   },
 
@@ -1119,7 +1180,7 @@ const rules = [
     ],
     processSteps: [
       { title: "Apply through your state's food department portal", mode: "either", url: "https://nfsa.gov.in/", order: 1 },
-      { title: "Verification by the local supply office", mode: "in-person", timeline: "Varies by state", order: 2 },
+      { title: "Verification by the local supply office", mode: "in-person", minDays: 15, maxDays: 45, timeline: "Varies by state", order: 2 },
     ],
   },
   {
@@ -1196,7 +1257,7 @@ const rules = [
     ],
     processSteps: [
       { title: "Visit a designated kiosk", detail: "Civic centres, taluka offices and some hospitals enrol applicants.", mode: "in-person", order: 1 },
-      { title: "Verification and biometric capture", mode: "in-person", fee: "Free", order: 2 },
+      { title: "Verification and biometric capture", mode: "in-person", fees: [{ label: "Enrolment", amount: 0, order: 1 }], minDays: 7, maxDays: 21, order: 2 },
       { title: "Collect the card", mode: "in-person", order: 3 },
     ],
   },
@@ -1210,7 +1271,7 @@ const rules = [
     ],
     conditionalBlocks: [],
     processSteps: [
-      { title: "Visit a designated kiosk with your existing card", mode: "in-person", fee: "Free", order: 1 },
+      { title: "Visit a designated kiosk with your existing card", mode: "in-person", fees: [{ label: "Renewal", amount: 0, order: 1 }], order: 1 },
     ],
   },
 

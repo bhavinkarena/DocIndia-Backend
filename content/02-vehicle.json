@@ -1,0 +1,468 @@
+{
+  "_readme": [
+    "Vehicle & RTO content pack — UNVERIFIED SCAFFOLD.",
+    "RTO processes and fees are set per state and change often. Every rule here",
+    "seeds unverified and every fee is an estimate. Confirm against the state's",
+    "Parivahan pages before publishing. See content/README.md."
+  ],
+
+  "documents": [
+    {
+      "name": "Vehicle Registration Certificate (RC)",
+      "slug": "vehicle-rc",
+      "description": "The RC book or smart card proving who owns the vehicle.",
+      "issuingBody": "State Transport Department / RTO",
+      "officialUrl": "https://parivahan.gov.in/",
+      "hasExpiry": true,
+      "typicalValidity": "15 years for a new private vehicle, then renewed every 5 years",
+      "copiesRequired": 1,
+      "attestation": "self-attested",
+      "obtainedViaSlug": "vehicle-rc",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "Vehicle Insurance Certificate",
+      "slug": "vehicle-insurance",
+      "description": "Valid third-party or comprehensive motor insurance.",
+      "issuingBody": "Insurance company",
+      "hasExpiry": true,
+      "typicalValidity": "1 year (3 or 5 years for a new vehicle's third-party cover)",
+      "copiesRequired": 1,
+      "notes": "Driving without valid third-party cover is an offence, so this is checked at almost every RTO counter."
+    },
+    {
+      "name": "PUC Certificate",
+      "slug": "puc-certificate",
+      "description": "Pollution Under Control certificate from an authorised testing centre.",
+      "issuingBody": "Authorised PUC centre",
+      "officialUrl": "https://parivahan.gov.in/",
+      "hasExpiry": true,
+      "typicalValidity": "6 months for most vehicles; 1 year for a new one",
+      "copiesRequired": 1,
+      "obtainedViaSlug": "puc-certificate",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "Form 29 & 30 (Transfer of Ownership)",
+      "slug": "form-29-30",
+      "description": "The RTO's sale forms — Form 29 is the notice of transfer, Form 30 the report.",
+      "issuingBody": "State Transport Department / RTO",
+      "officialUrl": "https://parivahan.gov.in/",
+      "hasExpiry": false,
+      "copiesRequired": 2,
+      "notes": "Both must be signed by the seller and the buyer. Form 29 is usually needed in duplicate, or triplicate for an inter-state sale."
+    },
+    {
+      "name": "Vehicle NOC",
+      "slug": "vehicle-noc",
+      "description": "No Objection Certificate from the RTO where the vehicle is registered, needed before re-registering it in another state.",
+      "issuingBody": "State Transport Department / RTO",
+      "officialUrl": "https://parivahan.gov.in/",
+      "hasExpiry": true,
+      "typicalValidity": "Usually 6 months from issue",
+      "copiesRequired": 1,
+      "obtainedViaSlug": "vehicle-noc",
+      "obtainedViaAction": "new"
+    },
+    {
+      "name": "Vehicle Sale Invoice",
+      "slug": "vehicle-sale-invoice",
+      "description": "The dealer's invoice for a new vehicle, or the sale agreement for a used one.",
+      "issuingBody": "Dealer / seller",
+      "hasExpiry": false,
+      "copiesRequired": 1
+    },
+    {
+      "name": "Chassis Pencil Print",
+      "slug": "chassis-pencil-print",
+      "description": "A pencil rubbing of the chassis number, taken from the vehicle itself.",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "Taken at the RTO in most states, but some ask you to bring it. Cheap to prepare and expensive to be missing."
+    },
+    {
+      "name": "Counterparty ID & Address Proof",
+      "slug": "counterparty-id-proof",
+      "description": "A copy of the other side's photo ID and address proof — the buyer's, or the seller's, depending on which side of the deal you are on.",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "A separate registry entry from your own ID on purpose: a rule listing \"Aadhaar\" for both sides would union into one row and lose the distinction."
+    },
+    {
+      "name": "Road Tax Receipt",
+      "slug": "road-tax-receipt",
+      "description": "Proof that road tax has been paid in the state of registration.",
+      "issuingBody": "State Transport Department / RTO",
+      "hasExpiry": false,
+      "copiesRequired": 1,
+      "notes": "Re-registering in a new state usually means paying its road tax and claiming a refund of the unused portion from the old one."
+    }
+  ],
+
+  "services": [
+    {
+      "label": "Vehicle Registration (RC)",
+      "slug": "vehicle-rc",
+      "description": "Register a vehicle, transfer it to a buyer, change the address on it, or replace a lost RC.",
+      "authority": "State Transport Department / RTO",
+      "scope": "national",
+      "icon": "car",
+      "order": 30,
+      "keywords": ["rc", "registration certificate", "rc transfer", "vehicle transfer", "sell my car", "sell bike", "rc book", "duplicate rc", "vehicle registration", "ownership transfer"],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Register a newly bought vehicle",
+          "description": "Usually handled by the dealer, but the paperwork is yours.",
+          "order": 1,
+          "questions": [
+            {
+              "key": "vehicleClass",
+              "label": "What kind of vehicle?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                { "value": "private", "label": "Private car or two-wheeler" },
+                { "value": "transport", "label": "Commercial or transport vehicle" }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "transfer",
+          "label": "Transfer ownership after a sale",
+          "order": 2,
+          "questions": [
+            {
+              "key": "side",
+              "label": "Are you the buyer or the seller?",
+              "type": "single-select",
+              "required": true,
+              "helpText": "Both sides sign the same forms, but you carry different documents.",
+              "order": 1,
+              "options": [
+                { "value": "buyer", "label": "I am buying" },
+                { "value": "seller", "label": "I am selling" }
+              ]
+            },
+            {
+              "key": "sameState",
+              "label": "Is the buyer in the same state?",
+              "type": "boolean",
+              "required": true,
+              "helpText": "A sale across state lines needs an NOC and re-registration.",
+              "order": 2
+            }
+          ]
+        },
+        {
+          "key": "update",
+          "label": "Change the address on the RC",
+          "order": 3,
+          "questions": []
+        },
+        {
+          "key": "duplicate",
+          "label": "Replace a lost or damaged RC",
+          "order": 4,
+          "questions": []
+        }
+      ]
+    },
+    {
+      "label": "Vehicle NOC (Inter-state)",
+      "slug": "vehicle-noc",
+      "description": "Get clearance from your current RTO before re-registering a vehicle in another state.",
+      "authority": "State Transport Department / RTO",
+      "scope": "national",
+      "icon": "arrow-left-right",
+      "order": 31,
+      "keywords": ["noc", "vehicle noc", "no objection certificate", "moving state with car", "inter state transfer", "re-registration", "shifting vehicle"],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Apply for an NOC",
+          "order": 1,
+          "questions": [
+            {
+              "key": "reason",
+              "label": "Why do you need it?",
+              "type": "single-select",
+              "required": true,
+              "order": 1,
+              "options": [
+                { "value": "relocation", "label": "I am moving to another state" },
+                { "value": "sale", "label": "I am selling to a buyer in another state" }
+              ]
+            },
+            {
+              "key": "loanActive",
+              "label": "Is there still a loan on the vehicle?",
+              "type": "boolean",
+              "required": true,
+              "helpText": "A financed vehicle needs the lender's consent before the RTO will release an NOC.",
+              "order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "PUC Certificate",
+      "slug": "puc-certificate",
+      "description": "Pollution Under Control test, required to drive legally and to renew most vehicle paperwork.",
+      "authority": "Authorised PUC centres",
+      "scope": "national",
+      "icon": "leaf",
+      "order": 32,
+      "keywords": ["puc", "pollution certificate", "pollution under control", "emission test", "puc renewal"],
+      "actions": [
+        { "key": "new", "label": "Get a PUC certificate", "order": 1, "questions": [] }
+      ]
+    },
+    {
+      "label": "High Security Number Plate (HSRP)",
+      "slug": "hsrp",
+      "description": "The tamper-proof registration plate now mandatory nationwide.",
+      "authority": "State Transport Department / authorised vendors",
+      "scope": "national",
+      "icon": "rectangle-horizontal",
+      "order": 33,
+      "keywords": ["hsrp", "number plate", "high security registration plate", "new number plate", "colour sticker"],
+      "actions": [
+        {
+          "key": "new",
+          "label": "Book an HSRP",
+          "order": 1,
+          "questions": [
+            {
+              "key": "fuelType",
+              "label": "What fuel does the vehicle use?",
+              "type": "single-select",
+              "required": true,
+              "helpText": "The colour sticker that goes with the plate depends on this.",
+              "order": 1,
+              "options": [
+                { "value": "petrol-cng", "label": "Petrol or CNG" },
+                { "value": "diesel", "label": "Diesel" },
+                { "value": "electric", "label": "Electric" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "International Driving Permit",
+      "slug": "international-driving-permit",
+      "description": "Lets you drive abroad on your Indian licence, in countries that accept it.",
+      "authority": "State Transport Department / RTO",
+      "scope": "national",
+      "icon": "globe",
+      "order": 34,
+      "keywords": ["idp", "international driving permit", "international licence", "drive abroad", "international driving licence"],
+      "actions": [
+        { "key": "new", "label": "Apply for an IDP", "order": 1, "questions": [] }
+      ]
+    }
+  ],
+
+  "rules": [
+    {
+      "serviceSlug": "vehicle-rc",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — vehicle pack",
+      "baseDocuments": [
+        { "slug": "vehicle-sale-invoice", "mandatory": true, "note": "The dealer's invoice, showing chassis and engine numbers." },
+        { "slug": "vehicle-insurance", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "pan-card", "mandatory": false, "note": "Or Form 60, and usually required above a purchase value threshold." },
+        { "slug": "electricity-bill", "mandatory": true, "note": "Proof of address — the RC is issued to this address." },
+        { "slug": "passport-size-photograph", "mandatory": true },
+        { "slug": "road-tax-receipt", "mandatory": true, "note": "Usually collected by the dealer at purchase." }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Commercial or transport vehicles",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "vehicleClass", "operator": "eq", "value": "transport" }],
+          "documents": [
+            { "slug": "form-1a-medical", "mandatory": false, "note": "For the driver, where a transport endorsement is involved." },
+            { "slug": "puc-certificate", "mandatory": true }
+          ]
+        }
+      ],
+      "processSteps": [
+        { "title": "Dealer submits the registration application", "detail": "For a new vehicle the dealer usually files this on Vahan.", "mode": "either", "url": "https://vahan.parivahan.gov.in/", "order": 1, "minDays": 1, "maxDays": 7 },
+        { "title": "Pay road tax and registration fee", "mode": "either", "order": 2, "minDays": 1, "maxDays": 3, "fees": [{ "label": "Registration fee", "amount": 600, "maxAmount": 1500, "isEstimate": true, "order": 1 }], "fee": "Road tax is a percentage of the vehicle's price and varies by state" },
+        { "title": "Vehicle inspection at the RTO", "mode": "in-person", "order": 3, "minDays": 1, "maxDays": 7, "conditions": [{ "questionKey": "vehicleClass", "operator": "eq", "value": "transport" }] },
+        { "title": "RC is issued and posted", "mode": "either", "order": 4, "minDays": 15, "maxDays": 45 }
+      ]
+    },
+    {
+      "serviceSlug": "vehicle-rc",
+      "action": "transfer",
+      "state": null,
+      "summary": "Initial import — vehicle pack",
+      "baseDocuments": [
+        { "slug": "vehicle-rc", "mandatory": true, "note": "The original RC book or card." },
+        { "slug": "form-29-30", "mandatory": true, "note": "Signed by both sides." },
+        { "slug": "vehicle-insurance", "mandatory": true },
+        { "slug": "puc-certificate", "mandatory": true },
+        { "slug": "chassis-pencil-print", "mandatory": false }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "You are buying",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "side", "operator": "eq", "value": "buyer" }],
+          "documents": [
+            { "slug": "aadhaar-card", "mandatory": true, "note": "Yours — the RC will be issued in your name." },
+            { "slug": "electricity-bill", "mandatory": true, "note": "Your address proof." },
+            { "slug": "passport-size-photograph", "mandatory": true }
+          ]
+        },
+        {
+          "label": "You are selling",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "side", "operator": "eq", "value": "seller" }],
+          "documents": [
+            { "slug": "aadhaar-card", "mandatory": true, "note": "Yours, as the registered owner." },
+            { "slug": "counterparty-id-proof", "mandatory": true, "belongsTo": "buyer", "note": "You need the buyer's ID and address proof to complete Form 29." }
+          ]
+        },
+        {
+          "label": "Buyer is in another state",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "sameState", "operator": "eq", "value": false }],
+          "documents": [
+            { "slug": "vehicle-noc", "mandatory": true, "note": "From the RTO where the vehicle is currently registered." },
+            { "slug": "road-tax-receipt", "mandatory": true, "note": "Needed to claim back the unused road tax from the old state." }
+          ]
+        }
+      ],
+      "processSteps": [
+        { "title": "Get an NOC from the current RTO", "detail": "Only for a sale across state lines.", "mode": "either", "url": "https://parivahan.gov.in/", "order": 1, "minDays": 7, "maxDays": 30, "conditions": [{ "questionKey": "sameState", "operator": "eq", "value": false }] },
+        { "title": "Both parties sign Form 29 and 30", "mode": "in-person", "order": 2, "minDays": 1, "maxDays": 3 },
+        { "title": "File the transfer on Vahan", "mode": "either", "url": "https://vahan.parivahan.gov.in/", "order": 3, "minDays": 1, "maxDays": 3, "fees": [{ "label": "Transfer fee", "amount": 300, "maxAmount": 800, "isEstimate": true, "order": 1 }] },
+        { "title": "Transfer the insurance policy", "detail": "Within 14 days of the sale, or a claim can be refused.", "mode": "either", "order": 4, "minDays": 1, "maxDays": 14, "conditions": [{ "questionKey": "side", "operator": "eq", "value": "buyer" }] },
+        { "title": "Updated RC is issued", "mode": "either", "order": 5, "minDays": 15, "maxDays": 45 }
+      ]
+    },
+    {
+      "serviceSlug": "vehicle-rc",
+      "action": "update",
+      "state": null,
+      "summary": "Initial import — vehicle pack",
+      "baseDocuments": [
+        { "slug": "vehicle-rc", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "electricity-bill", "mandatory": true, "note": "Proof of the new address." },
+        { "slug": "vehicle-insurance", "mandatory": true },
+        { "slug": "puc-certificate", "mandatory": true }
+      ],
+      "processSteps": [
+        { "title": "Apply for the address change on Vahan", "mode": "either", "url": "https://vahan.parivahan.gov.in/", "order": 1, "minDays": 1, "maxDays": 3, "fees": [{ "label": "Change of address fee", "amount": 200, "maxAmount": 500, "isEstimate": true, "order": 1 }] },
+        { "title": "Updated RC is issued", "mode": "either", "order": 2, "minDays": 15, "maxDays": 45 }
+      ]
+    },
+    {
+      "serviceSlug": "vehicle-rc",
+      "action": "duplicate",
+      "state": null,
+      "summary": "Initial import — vehicle pack",
+      "baseDocuments": [
+        { "slug": "fir-copy", "mandatory": true, "note": "Police report for the lost RC." },
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "vehicle-insurance", "mandatory": true },
+        { "slug": "puc-certificate", "mandatory": true },
+        { "slug": "affidavit", "mandatory": true, "note": "Declaring the loss, on stamp paper." },
+        { "slug": "chassis-pencil-print", "mandatory": true }
+      ],
+      "processSteps": [
+        { "title": "File a police report", "mode": "in-person", "order": 1, "minDays": 1, "maxDays": 7 },
+        { "title": "Apply for a duplicate RC (Form 26)", "mode": "either", "url": "https://vahan.parivahan.gov.in/", "order": 2, "minDays": 1, "maxDays": 3, "fees": [{ "label": "Duplicate RC fee", "amount": 300, "maxAmount": 800, "isEstimate": true, "order": 1 }] },
+        { "title": "Duplicate RC is issued", "mode": "either", "order": 3, "minDays": 21, "maxDays": 60 }
+      ]
+    },
+    {
+      "serviceSlug": "vehicle-noc",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — vehicle pack",
+      "baseDocuments": [
+        { "slug": "vehicle-rc", "mandatory": true },
+        { "slug": "vehicle-insurance", "mandatory": true },
+        { "slug": "puc-certificate", "mandatory": true },
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "road-tax-receipt", "mandatory": true },
+        { "slug": "chassis-pencil-print", "mandatory": true }
+      ],
+      "conditionalBlocks": [
+        {
+          "label": "Vehicle still under finance",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "loanActive", "operator": "eq", "value": true }],
+          "documents": [{ "slug": "affidavit", "mandatory": true, "note": "The lender's NOC. The RTO will not release its own without it." }]
+        },
+        {
+          "label": "Selling to a buyer in another state",
+          "matchType": "all",
+          "conditions": [{ "questionKey": "reason", "operator": "eq", "value": "sale" }],
+          "documents": [{ "slug": "form-29-30", "mandatory": true, "note": "Signed by both sides." }]
+        }
+      ],
+      "processSteps": [
+        { "title": "Get the lender's NOC", "detail": "Only if there is still a loan against the vehicle.", "mode": "either", "order": 1, "minDays": 7, "maxDays": 30, "conditions": [{ "questionKey": "loanActive", "operator": "eq", "value": true }] },
+        { "title": "Apply for the NOC (Form 28)", "mode": "either", "url": "https://vahan.parivahan.gov.in/", "order": 2, "minDays": 1, "maxDays": 3, "fees": [{ "label": "NOC fee", "amount": 100, "maxAmount": 500, "isEstimate": true, "order": 1 }] },
+        { "title": "RTO clears dues and issues the NOC", "detail": "Any pending challans or tax must be settled first.", "mode": "in-person", "order": 3, "minDays": 15, "maxDays": 45 },
+        { "title": "Re-register in the new state within the NOC's validity", "detail": "The NOC usually lapses after six months.", "mode": "in-person", "order": 4, "minDays": 15, "maxDays": 60 }
+      ]
+    },
+    {
+      "serviceSlug": "puc-certificate",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — vehicle pack",
+      "baseDocuments": [
+        { "slug": "vehicle-rc", "mandatory": true, "note": "Take the vehicle itself — the test is done on it." }
+      ],
+      "processSteps": [
+        { "title": "Drive to an authorised PUC centre", "detail": "Usually at a fuel station. The test takes a few minutes and the certificate is printed on the spot.", "mode": "in-person", "order": 1, "minDays": 0, "maxDays": 1, "fees": [{ "label": "Emission test", "amount": 80, "maxAmount": 150, "isEstimate": true, "order": 1 }] }
+      ]
+    },
+    {
+      "serviceSlug": "hsrp",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — vehicle pack",
+      "baseDocuments": [
+        { "slug": "vehicle-rc", "mandatory": true, "note": "You need the registration number, chassis and engine numbers." },
+        { "slug": "aadhaar-card", "mandatory": false }
+      ],
+      "processSteps": [
+        { "title": "Book online with the state's authorised vendor", "mode": "online", "url": "https://parivahan.gov.in/", "order": 1, "minDays": 1, "maxDays": 3, "fees": [{ "label": "Two-wheeler plate", "amount": 400, "maxAmount": 700, "isEstimate": true, "order": 1 }, { "label": "Car plate", "amount": 1100, "maxAmount": 1500, "isEstimate": true, "order": 2 }] },
+        { "title": "Attend the fitting appointment", "detail": "The plate is fixed at the chosen dealer or centre.", "mode": "in-person", "order": 2, "minDays": 7, "maxDays": 30 }
+      ]
+    },
+    {
+      "serviceSlug": "international-driving-permit",
+      "action": "new",
+      "state": null,
+      "summary": "Initial import — vehicle pack",
+      "baseDocuments": [
+        { "slug": "driving-licence", "mandatory": true, "note": "Must be valid, and stay valid for the life of the permit." },
+        { "slug": "indian-passport", "mandatory": true, "note": "With a valid visa for the country you are travelling to." },
+        { "slug": "passport-size-photograph", "mandatory": true },
+        { "slug": "form-1a-medical", "mandatory": true, "note": "Medical certificate, usually Form 1A." },
+        { "slug": "electricity-bill", "mandatory": true, "note": "Address proof for the RTO you apply to." }
+      ],
+      "processSteps": [
+        { "title": "Apply at your home RTO", "detail": "An IDP is issued only by the RTO that holds your licence record.", "mode": "either", "url": "https://parivahan.gov.in/", "order": 1, "minDays": 1, "maxDays": 7, "fees": [{ "label": "IDP fee", "amount": 1000, "isEstimate": true, "order": 1 }] },
+        { "title": "Collect the permit", "detail": "Valid for one year, and only alongside your Indian licence.", "mode": "in-person", "order": 2, "minDays": 3, "maxDays": 21 }
+      ]
+    }
+  ]
+}
