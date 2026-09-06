@@ -1,0 +1,664 @@
+{
+  "_readme": "Central-government scholarships, slice 1 of the sourcing order in scholarship-implementation-plan.md §12. Every record here is UNVERIFIED and seeds unpublished. Amounts, income ceilings and dates are indicative and must be confirmed against the official circular before publishing. Windows use the 2026-27 cycle.",
+
+  "documents": [
+    {
+      "name": "Bonafide student certificate",
+      "slug": "bonafide-certificate",
+      "description": "Issued by your school or college confirming you are currently enrolled, with your course and year.",
+      "issuingBody": "Your institution",
+      "hasExpiry": true,
+      "typicalValidity": "One academic year",
+      "copiesRequired": 1,
+      "attestation": "none",
+      "validityWindow": "Must be for the current academic year",
+      "notes": "Ask the administrative office. Most issue it within a few days; some charge a small fee."
+    },
+    {
+      "name": "Fee receipt",
+      "slug": "fee-receipt",
+      "description": "Proof of the tuition and other fees you have paid to your institution this year.",
+      "issuingBody": "Your institution",
+      "copiesRequired": 1,
+      "attestation": "self-attested",
+      "notes": "Scholarships that reimburse fees need the receipt, not the fee structure. Keep the original."
+    },
+    {
+      "name": "Previous year marksheet",
+      "slug": "previous-year-marksheet",
+      "description": "Marksheet of the last examination you passed, used to check the minimum-percentage condition.",
+      "issuingBody": "Your board or university",
+      "copiesRequired": 1,
+      "attestation": "self-attested",
+      "formatNotes": "All pages, including the reverse if marks continue there."
+    }
+  ],
+
+  "scholarships": [
+    {
+      "name": "Post-Matric Scholarship for Scheduled Caste Students",
+      "slug": "post-matric-sc",
+      "shortName": "Post-Matric SC",
+      "description": "The largest central scholarship for SC students, covering tuition and maintenance from class 11 through postgraduate and professional courses.",
+      "keywords": ["sc scholarship", "post matric", "scheduled caste", "nsp"],
+      "provider": {
+        "name": "Ministry of Social Justice and Empowerment",
+        "type": "central",
+        "ministry": "Social Justice and Empowerment",
+        "portalName": "National Scholarship Portal"
+      },
+      "scope": "national",
+      "benefit": {
+        "summary": "Full reimbursement of compulsory course fees, plus a monthly maintenance allowance.",
+        "components": [
+          { "label": "Maintenance allowance (hosteller)", "amountMin": 1200, "amountMax": 1200, "frequency": "monthly", "condition": [{ "questionKey": "residenceType", "operator": "eq", "value": "hosteller" }] },
+          { "label": "Maintenance allowance (day scholar)", "amountMin": 550, "amountMax": 550, "frequency": "monthly", "condition": [{ "questionKey": "residenceType", "operator": "eq", "value": "day-scholar" }] },
+          { "label": "Course fee reimbursement", "amountMin": 0, "amountMax": 0, "frequency": "annual", "note": "Non-refundable compulsory fees, reimbursed in full — amount varies by institution." }
+        ]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "category", "operator": "eq", "value": "sc", "label": "Must belong to a Scheduled Caste" },
+          { "questionKey": "familyIncome", "operator": "in", "value": ["below-1l", "1l-2.5l"], "label": "Annual family income under ₹2.5 lakh" }
+        ],
+        "notes": "Available for one course at a time. Students repeating a year are not eligible for that year."
+      },
+      "academic": {
+        "levels": ["post-matric", "ug", "pg", "diploma", "professional"],
+        "institutionTypes": ["government", "private", "aided"]
+      },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "label": "Student application", "opensAt": "2026-08-01", "closesAt": "2026-10-31", "confidence": "reported" },
+          { "key": "defect-correction", "opensAt": "2026-11-01", "closesAt": "2026-11-30", "confidence": "reported" },
+          { "key": "institute-verification", "closesAt": "2026-12-15", "confidence": "reported" },
+          { "key": "nodal-verification", "closesAt": "2026-12-31", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-10", "closesAt": "2024-11-05" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-05", "closesAt": "2025-10-31" }
+        ]
+      },
+      "renewal": { "required": true, "minAttendance": 75, "note": "Renew each year on the same portal; promotion to the next year is required." },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "caste-certificate", "mandatory": true, "note": "Issued by a competent authority of your state." },
+        { "slug": "income-certificate", "mandatory": true, "note": "Must be for the current financial year." },
+        { "slug": "previous-year-marksheet", "mandatory": true },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true, "note": "Account must be in the student's own name and Aadhaar-seeded." },
+        { "slug": "passport-size-photograph", "mandatory": true },
+        { "slug": "fee-receipt", "mandatory": false, "note": "Needed for the fee-reimbursement component." }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://socialjustice.gov.in/schemes/25",
+      "helplineEmail": "helpdesk@nsp.gov.in"
+    },
+
+    {
+      "name": "Pre-Matric Scholarship for Scheduled Caste Students",
+      "slug": "pre-matric-sc",
+      "shortName": "Pre-Matric SC",
+      "description": "Support for SC students in classes 9 and 10, intended to reduce drop-out before the board examination.",
+      "keywords": ["sc scholarship", "pre matric", "class 9", "class 10"],
+      "provider": { "name": "Ministry of Social Justice and Empowerment", "type": "central", "portalName": "National Scholarship Portal" },
+      "scope": "national",
+      "benefit": {
+        "summary": "Monthly maintenance allowance plus an annual books-and-ad-hoc grant.",
+        "components": [
+          { "label": "Maintenance allowance", "amountMin": 150, "amountMax": 350, "frequency": "monthly" },
+          { "label": "Books and ad-hoc grant", "amountMin": 750, "amountMax": 1000, "frequency": "annual" }
+        ]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "category", "operator": "eq", "value": "sc", "label": "Must belong to a Scheduled Caste" },
+          { "questionKey": "familyIncome", "operator": "in", "value": ["below-1l", "1l-2.5l"], "label": "Annual family income under ₹2.5 lakh" }
+        ]
+      },
+      "academic": { "levels": ["pre-matric"], "yearOfStudy": [9, 10] },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-08-01", "closesAt": "2026-09-30", "confidence": "reported" },
+          { "key": "institute-verification", "closesAt": "2026-10-31", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-15", "closesAt": "2024-10-15" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-01", "closesAt": "2025-09-30" }
+        ]
+      },
+      "renewal": { "required": true },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "caste-certificate", "mandatory": true },
+        { "slug": "income-certificate", "mandatory": true },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true, "note": "A parent's account is accepted for pre-matric students." }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://socialjustice.gov.in/"
+    },
+
+    {
+      "name": "Post-Matric Scholarship for Scheduled Tribe Students",
+      "slug": "post-matric-st",
+      "shortName": "Post-Matric ST",
+      "description": "The Ministry of Tribal Affairs equivalent of the SC post-matric scheme, for ST students from class 11 upward.",
+      "keywords": ["st scholarship", "tribal", "post matric"],
+      "provider": { "name": "Ministry of Tribal Affairs", "type": "central", "portalName": "National Scholarship Portal" },
+      "scope": "national",
+      "benefit": {
+        "summary": "Course fees plus a monthly maintenance allowance.",
+        "components": [
+          { "label": "Maintenance allowance (hosteller)", "amountMin": 1200, "amountMax": 1200, "frequency": "monthly" },
+          { "label": "Books grant", "amountMin": 1200, "amountMax": 1200, "frequency": "annual" }
+        ]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "category", "operator": "eq", "value": "st", "label": "Must belong to a Scheduled Tribe" },
+          { "questionKey": "familyIncome", "operator": "in", "value": ["below-1l", "1l-2.5l"], "label": "Annual family income under ₹2.5 lakh" }
+        ]
+      },
+      "academic": { "levels": ["post-matric", "ug", "pg", "diploma", "professional"] },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-08-01", "closesAt": "2026-10-31", "confidence": "reported" },
+          { "key": "institute-verification", "closesAt": "2026-12-15", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-10", "closesAt": "2024-10-31" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-05", "closesAt": "2025-11-15" }
+        ]
+      },
+      "renewal": { "required": true, "minAttendance": 75 },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "caste-certificate", "mandatory": true, "note": "ST certificate from a competent authority." },
+        { "slug": "income-certificate", "mandatory": true },
+        { "slug": "previous-year-marksheet", "mandatory": true },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://tribal.nic.in/"
+    },
+
+    {
+      "name": "Post-Matric Scholarship for OBC Students",
+      "slug": "post-matric-obc",
+      "shortName": "Post-Matric OBC",
+      "description": "Central post-matric support for Other Backward Class students in recognised courses.",
+      "keywords": ["obc scholarship", "post matric", "backward class"],
+      "provider": { "name": "Ministry of Social Justice and Empowerment", "type": "central", "portalName": "National Scholarship Portal" },
+      "scope": "national",
+      "benefit": {
+        "summary": "Course fees plus maintenance, at rates below the SC/ST scheme.",
+        "components": [
+          { "label": "Maintenance allowance (hosteller)", "amountMin": 750, "amountMax": 750, "frequency": "monthly" },
+          { "label": "Maintenance allowance (day scholar)", "amountMin": 350, "amountMax": 350, "frequency": "monthly" }
+        ]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "category", "operator": "eq", "value": "obc", "label": "Must belong to an Other Backward Class" },
+          { "questionKey": "familyIncome", "operator": "in", "value": ["below-1l", "1l-2.5l"], "label": "Annual family income under ₹2.5 lakh" }
+        ],
+        "notes": "The creamy-layer exclusion applies. Your OBC certificate must be non-creamy-layer and current."
+      },
+      "academic": { "levels": ["post-matric", "ug", "pg", "diploma", "professional"] },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-08-01", "closesAt": "2026-10-31", "confidence": "reported" },
+          { "key": "institute-verification", "closesAt": "2026-12-15", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-10", "closesAt": "2024-10-31" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-05", "closesAt": "2025-10-31" }
+        ]
+      },
+      "renewal": { "required": true },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "caste-certificate", "mandatory": true, "note": "Non-creamy-layer OBC certificate, issued within the last year." },
+        { "slug": "income-certificate", "mandatory": true },
+        { "slug": "previous-year-marksheet", "mandatory": true },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://socialjustice.gov.in/"
+    },
+
+    {
+      "name": "Central Sector Scheme of Scholarship for College and University Students",
+      "slug": "central-sector-css",
+      "shortName": "Central Sector (CSSS)",
+      "description": "Merit scholarship for students in the top 20 percentile of their class 12 board, tenable through undergraduate and postgraduate study.",
+      "keywords": ["merit scholarship", "csss", "central sector", "top 20 percentile", "class 12"],
+      "provider": { "name": "Ministry of Education", "type": "central", "ministry": "Education", "portalName": "National Scholarship Portal" },
+      "scope": "national",
+      "benefit": {
+        "summary": "₹12,000 a year for the first three years, ₹20,000 a year thereafter.",
+        "components": [
+          { "label": "Scholarship (years 1–3)", "amountMin": 12000, "amountMax": 12000, "frequency": "annual" },
+          { "label": "Scholarship (years 4–5)", "amountMin": 20000, "amountMax": 20000, "frequency": "annual", "note": "Applies in the fourth and fifth year of professional courses." }
+        ]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "familyIncome", "operator": "in", "value": ["below-1l", "1l-2.5l", "2.5l-4.5l"], "label": "Annual family income under ₹4.5 lakh" }
+        ],
+        "notes": "You must be in the top 20 percentile of successful candidates in your own board's class 12 stream. Not tenable alongside another central scholarship."
+      },
+      "academic": {
+        "levels": ["ug", "pg", "professional"],
+        "minPercentage": 80,
+        "institutionTypes": ["government", "private", "aided"]
+      },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-08-15", "closesAt": "2026-10-31", "confidence": "reported" },
+          { "key": "institute-verification", "closesAt": "2026-11-30", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-20", "closesAt": "2024-10-31" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-15", "closesAt": "2025-10-31" }
+        ]
+      },
+      "renewal": { "required": true, "minPercentageToRenew": 50, "minAttendance": 75 },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "income-certificate", "mandatory": true },
+        { "slug": "previous-year-marksheet", "mandatory": true, "note": "Class 12 marksheet showing your percentile." },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true },
+        { "slug": "fee-receipt", "mandatory": false }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://www.education.gov.in/scholarships-education-loan-0"
+    },
+
+    {
+      "name": "National Means-cum-Merit Scholarship",
+      "slug": "nmmss",
+      "shortName": "NMMSS",
+      "description": "For students who clear the state NMMS examination in class 8, paid through classes 9 to 12 to reduce drop-out at the secondary stage.",
+      "keywords": ["nmms", "means cum merit", "class 8", "class 9", "secondary"],
+      "provider": { "name": "Ministry of Education", "type": "central", "portalName": "National Scholarship Portal" },
+      "scope": "national",
+      "benefit": {
+        "summary": "₹12,000 a year, paid through classes 9 to 12.",
+        "components": [{ "label": "Scholarship", "amountMin": 12000, "amountMax": 12000, "frequency": "annual" }]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "familyIncome", "operator": "in", "value": ["below-1l", "1l-2.5l", "2.5l-4.5l"], "label": "Annual family income under ₹3.5 lakh" },
+          { "questionKey": "institutionType", "operator": "in", "value": ["government", "aided"], "label": "Must study at a government or government-aided school" }
+        ],
+        "notes": "You must have passed the state-level NMMS selection test. Students at private unaided schools, KVs, JNVs and residential schools are not eligible."
+      },
+      "academic": { "levels": ["pre-matric", "post-matric"], "minPercentage": 55, "institutionTypes": ["government", "aided"] },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-08-01", "closesAt": "2026-09-20", "confidence": "reported" },
+          { "key": "institute-verification", "closesAt": "2026-10-20", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-01", "closesAt": "2024-09-30" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-01", "closesAt": "2025-09-15" }
+        ]
+      },
+      "renewal": { "required": true, "minPercentageToRenew": 55 },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "income-certificate", "mandatory": true },
+        { "slug": "previous-year-marksheet", "mandatory": true },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://scholarships.gov.in/"
+    },
+
+    {
+      "name": "AICTE Pragati Scholarship for Girl Students",
+      "slug": "aicte-pragati",
+      "shortName": "AICTE Pragati",
+      "description": "For girls entering AICTE-approved technical degree or diploma programmes, with up to two girls per family supported.",
+      "keywords": ["pragati", "aicte", "girls", "technical", "engineering", "girl student"],
+      "provider": { "name": "All India Council for Technical Education", "type": "aicte", "portalName": "National Scholarship Portal" },
+      "scope": "national",
+      "benefit": {
+        "summary": "₹50,000 a year toward tuition and study materials.",
+        "components": [{ "label": "Tuition and incidentals", "amountMin": 50000, "amountMax": 50000, "frequency": "annual" }]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "gender", "operator": "eq", "value": "female", "label": "For girl students" },
+          { "questionKey": "familyIncome", "operator": "in", "value": ["below-1l", "1l-2.5l", "2.5l-4.5l", "4.5l-8l"], "label": "Annual family income under ₹8 lakh" }
+        ],
+        "notes": "A maximum of two girls per family. The institution must be AICTE-approved."
+      },
+      "academic": {
+        "levels": ["ug", "diploma", "professional"],
+        "streams": ["engineering", "technology", "pharmacy", "architecture"],
+        "recognitionRequired": ["aicte"],
+        "yearOfStudy": [1]
+      },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-08-01", "closesAt": "2026-09-15", "confidence": "reported" },
+          { "key": "institute-verification", "closesAt": "2026-10-15", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-01", "closesAt": "2024-10-31" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-01", "closesAt": "2025-09-30" }
+        ]
+      },
+      "renewal": { "required": true, "minAttendance": 75 },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "income-certificate", "mandatory": true },
+        { "slug": "previous-year-marksheet", "mandatory": true, "note": "Class 12 or diploma marksheet." },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "fee-receipt", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://www.aicte-india.org/schemes/students-development-schemes"
+    },
+
+    {
+      "name": "AICTE Saksham Scholarship for Differently-Abled Students",
+      "slug": "aicte-saksham",
+      "shortName": "AICTE Saksham",
+      "description": "For differently-abled students in AICTE-approved technical programmes, on the same terms as Pragati.",
+      "keywords": ["saksham", "aicte", "disability", "differently abled", "technical"],
+      "provider": { "name": "All India Council for Technical Education", "type": "aicte", "portalName": "National Scholarship Portal" },
+      "scope": "national",
+      "benefit": {
+        "summary": "₹50,000 a year toward tuition and study materials.",
+        "components": [{ "label": "Tuition and incidentals", "amountMin": 50000, "amountMax": 50000, "frequency": "annual" }]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "hasDisability", "operator": "eq", "value": true, "label": "For students with at least 40% disability" },
+          { "questionKey": "familyIncome", "operator": "in", "value": ["below-1l", "1l-2.5l", "2.5l-4.5l", "4.5l-8l"], "label": "Annual family income under ₹8 lakh" }
+        ],
+        "notes": "Disability of 40% or more, certified by a competent medical authority."
+      },
+      "academic": {
+        "levels": ["ug", "diploma", "professional"],
+        "streams": ["engineering", "technology", "pharmacy", "architecture"],
+        "recognitionRequired": ["aicte"]
+      },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-08-01", "closesAt": "2026-09-15", "confidence": "reported" },
+          { "key": "institute-verification", "closesAt": "2026-10-15", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-01", "closesAt": "2024-10-31" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-01", "closesAt": "2025-09-30" }
+        ]
+      },
+      "renewal": { "required": true },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "disability-medical-certificate", "mandatory": true, "note": "Must state a disability of 40% or more." },
+        { "slug": "income-certificate", "mandatory": true },
+        { "slug": "previous-year-marksheet", "mandatory": true },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://www.aicte-india.org/schemes/students-development-schemes"
+    },
+
+    {
+      "name": "Merit-cum-Means Scholarship for Professional and Technical Courses (Minorities)",
+      "slug": "merit-cum-means-minorities",
+      "shortName": "Merit-cum-Means",
+      "description": "For students from notified minority communities in professional and technical courses at recognised institutions.",
+      "keywords": ["minority scholarship", "merit cum means", "professional", "technical"],
+      "provider": { "name": "Ministry of Minority Affairs", "type": "central", "portalName": "National Scholarship Portal" },
+      "scope": "national",
+      "benefit": {
+        "summary": "Course fees up to a ceiling, plus a monthly maintenance allowance.",
+        "components": [
+          { "label": "Course fee", "amountMin": 20000, "amountMax": 20000, "frequency": "annual", "note": "Higher ceiling at listed institutions." },
+          { "label": "Maintenance allowance", "amountMin": 500, "amountMax": 1000, "frequency": "monthly" }
+        ]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "isMinority", "operator": "eq", "value": true, "label": "Must belong to a notified minority community" },
+          { "questionKey": "familyIncome", "operator": "in", "value": ["below-1l", "1l-2.5l"], "label": "Annual family income under ₹2.5 lakh" }
+        ],
+        "notes": "Notified minorities are Muslim, Christian, Sikh, Buddhist, Jain and Parsi. 30% of the awards are reserved for girls."
+      },
+      "academic": { "levels": ["ug", "pg", "professional"], "minPercentage": 50 },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-08-01", "closesAt": "2026-09-30", "confidence": "reported" },
+          { "key": "institute-verification", "closesAt": "2026-10-31", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-01", "closesAt": "2024-09-30" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-05", "closesAt": "2025-10-15" }
+        ]
+      },
+      "renewal": { "required": true, "minPercentageToRenew": 50 },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "income-certificate", "mandatory": true },
+        { "slug": "previous-year-marksheet", "mandatory": true },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "fee-receipt", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://www.minorityaffairs.gov.in/"
+    },
+
+    {
+      "name": "Ishan Uday Special Scholarship for the North Eastern Region",
+      "slug": "ishan-uday",
+      "shortName": "Ishan Uday",
+      "description": "UGC scholarship for students from the eight North Eastern states entering general degree, technical or professional courses.",
+      "keywords": ["ishan uday", "north east", "ugc", "ner"],
+      "provider": { "name": "University Grants Commission", "type": "ugc", "portalName": "National Scholarship Portal" },
+      "scope": "state",
+      "availableStates": ["arunachal-pradesh", "assam", "manipur", "meghalaya", "mizoram", "nagaland", "sikkim", "tripura"],
+      "benefit": {
+        "summary": "₹5,400 a month for general degree courses, ₹7,800 a month for technical and professional courses.",
+        "components": [
+          { "label": "General degree courses", "amountMin": 5400, "amountMax": 5400, "frequency": "monthly" },
+          { "label": "Technical and professional courses", "amountMin": 7800, "amountMax": 7800, "frequency": "monthly" }
+        ]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "familyIncome", "operator": "in", "value": ["below-1l", "1l-2.5l", "2.5l-4.5l"], "label": "Annual family income under ₹4.5 lakh" }
+        ]
+      },
+      "academic": { "levels": ["ug", "professional", "diploma"], "yearOfStudy": [1] },
+      "residency": {
+        "requiresDomicileIn": ["arunachal-pradesh", "assam", "manipur", "meghalaya", "mizoram", "nagaland", "sikkim", "tripura"]
+      },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-08-01", "closesAt": "2026-11-30", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-15", "closesAt": "2024-11-30" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-01", "closesAt": "2025-11-30" }
+        ]
+      },
+      "renewal": { "required": true },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "domicile-certificate", "mandatory": true, "note": "Of one of the eight North Eastern states." },
+        { "slug": "income-certificate", "mandatory": true },
+        { "slug": "previous-year-marksheet", "mandatory": true },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://www.ugc.gov.in/"
+    },
+
+    {
+      "name": "Post Graduate Indira Gandhi Scholarship for Single Girl Child",
+      "slug": "pg-indira-gandhi-single-girl",
+      "shortName": "PG Single Girl Child",
+      "description": "UGC scholarship for the only girl child in a family pursuing a full-time postgraduate degree.",
+      "keywords": ["single girl child", "indira gandhi", "ugc", "postgraduate", "pg"],
+      "provider": { "name": "University Grants Commission", "type": "ugc", "portalName": "National Scholarship Portal" },
+      "scope": "national",
+      "benefit": {
+        "summary": "₹36,200 a year for two years of postgraduate study.",
+        "components": [{ "label": "Scholarship", "amountMin": 36200, "amountMax": 36200, "frequency": "annual" }]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "gender", "operator": "eq", "value": "female", "label": "For girl students" }
+        ],
+        "notes": "You must be the only girl child in your family. Twin or two girl children are also eligible. There is no income ceiling on this scheme."
+      },
+      "academic": { "levels": ["pg"], "yearOfStudy": [1] },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-08-01", "closesAt": "2026-10-31", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-01", "closesAt": "2024-10-31" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-01", "closesAt": "2025-10-31" }
+        ]
+      },
+      "renewal": { "required": true },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "affidavit", "mandatory": true, "note": "Parental affidavit confirming you are the only girl child." },
+        { "slug": "previous-year-marksheet", "mandatory": true },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://www.ugc.gov.in/"
+    },
+
+    {
+      "name": "Prime Minister's Scholarship Scheme for Wards of CAPF and Assam Rifles",
+      "slug": "pm-scholarship-capf",
+      "shortName": "PM Scholarship (CAPF)",
+      "description": "For the wards and widows of Central Armed Police Forces and Assam Rifles personnel, in professional degree courses.",
+      "keywords": ["pm scholarship", "capf", "assam rifles", "defence", "wards"],
+      "provider": { "name": "Ministry of Home Affairs", "type": "central", "portalName": "National Scholarship Portal" },
+      "scope": "national",
+      "benefit": {
+        "summary": "₹3,000 a month for boys, ₹3,500 a month for girls.",
+        "components": [
+          { "label": "Scholarship (boys)", "amountMin": 3000, "amountMax": 3000, "frequency": "monthly", "condition": [{ "questionKey": "gender", "operator": "eq", "value": "male" }] },
+          { "label": "Scholarship (girls)", "amountMin": 3500, "amountMax": 3500, "frequency": "monthly", "condition": [{ "questionKey": "gender", "operator": "eq", "value": "female" }] }
+        ]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "parentOccupation", "operator": "in", "value": ["capf", "assam-rifles", "ex-serviceman"], "label": "A parent must serve or have served in CAPF or Assam Rifles" }
+        ],
+        "notes": "There is no income ceiling. Wards of personnel killed or disabled in action are given priority."
+      },
+      "academic": { "levels": ["ug", "professional"], "minPercentage": 60 },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-08-01", "closesAt": "2026-09-12", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-08-01", "closesAt": "2024-10-31" },
+          { "academicYear": "2025-26", "opensAt": "2025-08-01", "closesAt": "2025-09-30" }
+        ]
+      },
+      "renewal": { "required": true, "minPercentageToRenew": 50 },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "previous-year-marksheet", "mandatory": true },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true }
+      ],
+      "applyUrl": "https://scholarships.gov.in/",
+      "officialUrl": "https://www.mha.gov.in/"
+    },
+
+    {
+      "name": "Bihar Post Matric Scholarship for SC and ST Students",
+      "slug": "bihar-post-matric-sc-st",
+      "shortName": "Bihar Post-Matric SC/ST",
+      "description": "Bihar's own post-matric scholarship, administered through the state e-Kalyan portal alongside the central scheme.",
+      "keywords": ["bihar", "e-kalyan", "post matric", "state scholarship"],
+      "provider": { "name": "Department of SC/ST Welfare, Government of Bihar", "type": "state", "portalName": "e-Kalyan Bihar" },
+      "scope": "state",
+      "availableStates": ["bihar"],
+      "benefit": {
+        "summary": "Tuition reimbursement plus a maintenance allowance, paid directly to the student's account.",
+        "components": [{ "label": "Maintenance allowance", "amountMin": 2000, "amountMax": 15000, "frequency": "annual", "note": "Varies by course level." }]
+      },
+      "eligibility": {
+        "matchType": "all",
+        "criteria": [
+          { "questionKey": "category", "operator": "in", "value": ["sc", "st"], "label": "Must belong to a Scheduled Caste or Scheduled Tribe" },
+          { "questionKey": "familyIncome", "operator": "in", "value": ["below-1l", "1l-2.5l"], "label": "Annual family income under ₹2.5 lakh" }
+        ]
+      },
+      "academic": { "levels": ["post-matric", "ug", "pg", "diploma", "professional"] },
+      "residency": { "requiresDomicileIn": ["bihar"] },
+      "window": {
+        "academicYear": "2026-27",
+        "stages": [
+          { "key": "application", "opensAt": "2026-09-01", "closesAt": "2026-12-31", "confidence": "reported" }
+        ],
+        "history": [
+          { "academicYear": "2024-25", "opensAt": "2024-09-01", "closesAt": "2024-12-31" },
+          { "academicYear": "2025-26", "opensAt": "2025-09-15", "closesAt": "2025-12-31" }
+        ]
+      },
+      "renewal": { "required": true },
+      "requiredDocuments": [
+        { "slug": "aadhaar-card", "mandatory": true },
+        { "slug": "caste-certificate", "mandatory": true },
+        { "slug": "income-certificate", "mandatory": true },
+        { "slug": "domicile-certificate", "mandatory": true, "note": "Bihar residential certificate." },
+        { "slug": "previous-year-marksheet", "mandatory": true },
+        { "slug": "bonafide-certificate", "mandatory": true },
+        { "slug": "cancelled-cheque", "mandatory": true }
+      ],
+      "applyUrl": "https://www.pmsonline.bih.nic.in/",
+      "officialUrl": "https://state.bihar.gov.in/scstwelfare/"
+    }
+  ]
+}

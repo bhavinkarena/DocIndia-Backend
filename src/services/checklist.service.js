@@ -18,6 +18,7 @@ const {
 const { STATES } = require("../utils/states");
 const { ACTION_LABELS } = require("../utils/constants");
 const checklistCache = require("../utils/checklistCache");
+const { evaluateCondition, blockMatches } = require("../utils/conditionEngine");
 
 // Below this, a "match" is a coincidental word in common rather than a signal.
 const MIN_MATCH_SCORE = 4;
@@ -33,34 +34,12 @@ const stateLabelOf = (value) =>
  * it cheap to test and safe to call from public, unauthenticated routes.
  * ------------------------------------------------------------------ */
 
-const evaluateCondition = (condition, answers) => {
-  const answer = answers[condition.questionKey];
-  const { operator, value } = condition;
-
-  switch (operator) {
-    case "eq":
-      return answer === value;
-    case "neq":
-      return answer !== value;
-    case "in":
-      return Array.isArray(value) && value.includes(answer);
-    case "nin":
-      return Array.isArray(value) && !value.includes(answer);
-    // For multi-select answers: does the chosen set include this value?
-    case "contains":
-      return Array.isArray(answer) && answer.includes(value);
-    default:
-      return false;
-  }
-};
-
-const blockMatches = (block, answers) => {
-  if (!block.conditions?.length) return false;
-  const results = block.conditions.map((c) => evaluateCondition(c, answers));
-  return block.matchType === "any"
-    ? results.some(Boolean)
-    : results.every(Boolean);
-};
+/**
+ * Condition evaluation now lives in utils/conditionEngine.js, because the
+ * scheme eligibility matcher needs identical semantics. Two copies would have
+ * drifted, and this engine's determinism is the reason the public routes are
+ * safe. Re-exported below so existing tests and callers are unaffected.
+ */
 
 /**
  * Validates submitted answers against the action's own question definitions.
@@ -1262,11 +1241,18 @@ exports.deleteChecklist = serviceHandler(async (userId, checklistId) => {
   return { success: true, statusCode: 200, message: "Checklist deleted" };
 });
 
-// Exported for direct unit testing of the engine without a database.
+// Exported for direct unit testing of the engine without a database, and
+// reused by documentReadiness.service.js — a scholarship's missing documents
+// are costed against the very same rules that produce a checklist, so the two
+// can never quote different lead times for the same errand.
 exports._internals = {
   evaluateCondition,
   blockMatches,
   validateAnswers,
   composeItems,
+  composeSteps,
+  summariseTimeline,
+  summariseCost,
+  resolveRule,
   buildChecklist,
 };

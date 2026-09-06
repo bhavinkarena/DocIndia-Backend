@@ -126,4 +126,50 @@ exports.sendPasswordResetEmail = (user, token, expiryMinutes) => {
   });
 };
 
+/**
+ * Warns a student before a watched scholarship closes.
+ *
+ * Sent as one mail per tier per scholarship rather than a digest, because the
+ * action is per-scholarship and a digest buries the one that closes on Friday
+ * among four that close next month. The lead time is stated in the subject:
+ * "closes in 7 days" is what makes someone open it today rather than tonight.
+ */
+exports.sendScholarshipReminderEmail = (user, scholarship, daysLeft) => {
+  const url = `${frontendUrl}/scholarships/${scholarship.slug}`;
+  const closing =
+    daysLeft === 0
+      ? "closes today"
+      : daysLeft === 1
+      ? "closes tomorrow"
+      : `closes in ${daysLeft} days`;
+
+  const lines = [
+    `Hi ${user.firstName},`,
+    "",
+    `${scholarship.name} ${closing}.`,
+    scholarship.applyUrl ? `Apply here: ${scholarship.applyUrl}` : "",
+    `See what you need: ${url}`,
+    "",
+    "DocuIndia never charges a fee for any scholarship. If anyone asks you",
+    "for money to apply, it is a scam.",
+  ].filter(Boolean);
+
+  return send({
+    to: user.email,
+    subject: `${scholarship.name} ${closing}`,
+    text: lines.join("\n"),
+    html:
+      `<p>Hi ${e(user.firstName)},</p>` +
+      `<p><strong>${e(scholarship.name)}</strong> ${e(closing)}.</p>` +
+      (scholarship.applyUrl
+        ? `<p><a href="${e(scholarship.applyUrl)}">Apply on ${e(
+            scholarship.provider?.portalName || "the official portal"
+          )}</a></p>`
+        : "") +
+      `<p><a href="${e(url)}">See what documents you need</a></p>` +
+      `<hr><p style="font-size:12px;color:#666">DocuIndia never charges a fee ` +
+      `for any scholarship. If anyone asks you for money to apply, it is a scam.</p>`,
+  });
+};
+
 exports.isConfigured = isConfigured;

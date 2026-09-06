@@ -30,6 +30,16 @@ const EVENT_TYPES = [
   "share_opened",
   "search_performed",
   "search_no_results",
+  /**
+   * Scholarship events follow the same rule as everything above: what the
+   * server can observe about *content*, never about a person. A match records
+   * how many results came back and nothing about the answers that produced
+   * them — those include caste, income band and disability status, and the
+   * honest way to hold that is not to hold it.
+   */
+  "scholarship_viewed",
+  "scholarship_matched",
+  "scholarship_match_empty",
 ];
 
 const analyticsEventSchema = new mongoose.Schema(

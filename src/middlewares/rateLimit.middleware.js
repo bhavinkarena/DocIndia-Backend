@@ -88,10 +88,38 @@ const globalLimiter = rateLimit({
   handler: buildHandler("Too many requests. Slow down and try again shortly."),
 });
 
+/**
+ * The scholarship finder fans out across the whole published catalogue on
+ * every call, so it is materially more expensive than an ordinary read. A
+ * tighter budget than the global one keeps a scripted caller from turning the
+ * quiz into a way to walk the entire scheme table repeatedly.
+ *
+ * Still generous for a person: nobody re-answers a twelve-question quiz thirty
+ * times an hour by hand.
+ */
+const matchLimiter = rateLimit({
+  ...base,
+  windowMs: 60 * 60 * 1000,
+  limit: 30,
+  handler: buildHandler(
+    "Too many searches from here. Wait a little and try again."
+  ),
+});
+
+/** Watching is a write, and one per scholarship is all anyone needs. */
+const watchLimiter = rateLimit({
+  ...base,
+  windowMs: 60 * 60 * 1000,
+  limit: 20,
+  handler: buildHandler("Too many watchlist changes. Try again shortly."),
+});
+
 module.exports = {
   loginLimiter,
   registerLimiter,
   passwordResetLimiter,
   feedbackLimiter,
+  matchLimiter,
+  watchLimiter,
   globalLimiter,
 };

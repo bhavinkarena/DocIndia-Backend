@@ -6,6 +6,7 @@ const checklistRoutes = require("./checklist.route");
 const feedbackRoutes = require("./feedback.route");
 const changelogRoutes = require("./changelog.route");
 const adminRoutes = require("./admin.route");
+const scholarshipRoutes = require("./scholarship.route");
 
 const mainRoutes = (app) => {
   app.use("/user", userRoutes);
@@ -16,6 +17,7 @@ const mainRoutes = (app) => {
   app.use("/feedback", feedbackRoutes);
   app.use("/changelog", changelogRoutes);
   app.use("/admin", adminRoutes);
+  app.use("/scholarship", scholarshipRoutes);
 };
 
 module.exports = mainRoutes;

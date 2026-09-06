@@ -19,7 +19,9 @@ const GovService = require("../models/govService.model");
 const DocumentModel = require("../models/document.model");
 const Rule = require("../models/rule.model");
 const Changelog = require("../models/changelog.model");
+const Scholarship = require("../models/scholarship.model");
 
+const { normaliseWindow } = require("../services/scholarship.service")._internals;
 const seedData = require("./seedData");
 const { loadContentPacks } = require("./contentPacks");
 const logger = require("../utils/logger");
@@ -41,6 +43,7 @@ const packs = loadContentPacks();
 const documents = [...seedData.documents, ...packs.documents];
 const services = [...seedData.services, ...packs.services];
 const rules = [...seedData.rules, ...packs.rules];
+const scholarships = [...(seedData.scholarships || []), ...packs.scholarships];
 
 // Same logger as the server, so a seed run inside a deploy hook lands in the
 // same stream as everything else. In development pino-pretty renders it as the
@@ -242,6 +245,70 @@ const seedRules = async (serviceIds, documentIds) => {
   log.info({ created, updated, skipped }, "Rules seeded");
 };
 
+/**
+ * Scholarships.
+ *
+ * Same posture as rules: idempotent, upsert by slug, and never overwrite a
+ * record a human has already verified. Scholarship content goes stale faster
+ * than anything else in the catalogue — windows and amounts change every year
+ * — so a re-seed clobbering a verified record would be actively harmful.
+ *
+ * Document references arrive as slugs and are resolved here, so a pack can be
+ * written without knowing any ObjectIds.
+ */
+const seedScholarships = async (documentIds) => {
+  let created = 0;
+  let updated = 0;
+  let skipped = 0;
+
+  for (const definition of scholarships) {
+    const { requiredDocuments = [], ...fields } = definition;
+
+    const resolved = requiredDocuments.map((entry) => {
+      const documentId = documentIds[entry.slug];
+      if (!documentId) {
+        throw new Error(
+          `Seed error: scholarship "${definition.slug}" needs unknown document "${entry.slug}"`
+        );
+      }
+      const { slug, ...rest } = entry;
+      return { ...rest, documentId };
+    });
+
+    const existing = await Scholarship.findOne({
+      slug: definition.slug,
+      isDeleted: false,
+    });
+
+    if (existing && existing.verificationStatus === "verified") {
+      log.info({ scholarship: definition.slug }, "Skipping — already verified by a human");
+      skipped++;
+      continue;
+    }
+
+    const payload = {
+      ...fields,
+      requiredDocuments: resolved,
+      // Dates in a pack are bare calendar dates and mean end-of-day IST.
+      window: normaliseWindow(fields.window),
+      verificationStatus: "unverified",
+      isPublished: PUBLISH,
+      isDeleted: false,
+    };
+
+    if (existing) {
+      Object.assign(existing, payload);
+      await existing.save();
+      updated++;
+    } else {
+      await Scholarship.create(payload);
+      created++;
+    }
+  }
+
+  log.info({ created, updated, skipped }, "Seeded scholarships");
+};
+
 const run = async () => {
   validateConfig();
 
@@ -261,6 +328,7 @@ const run = async () => {
   const serviceIds = await seedServices();
   await linkDocumentsToServices(documentIds, serviceIds);
   await seedRules(serviceIds, documentIds);
+  await seedScholarships(documentIds);
 
   log.info("Seed complete");
   // Deliberately warn, not info: seeded content is unverified, and this is the

@@ -24,9 +24,13 @@ const PACK_DIR = path.join(__dirname, "..", "..", "content");
  * defined, and a document's `obtainedViaSlug` can only point at a service that
  * exists — the seeder resolves documents, then services, then rules, so
  * within a run the ordering that matters is between packs, not inside one.
+ *
+ * Scholarships live in packs too, and reference documents by the same slugs.
+ * They load after everything else for the same reason rules do: a scholarship
+ * can only require a document the run has already created.
  */
 const loadContentPacks = () => {
-  const empty = { documents: [], services: [], rules: [] };
+  const empty = { documents: [], services: [], rules: [], scholarships: [] };
 
   if (!fs.existsSync(PACK_DIR)) return empty;
 
@@ -37,7 +41,7 @@ const loadContentPacks = () => {
 
   if (!files.length) return empty;
 
-  const merged = { documents: [], services: [], rules: [] };
+  const merged = { documents: [], services: [], rules: [], scholarships: [] };
 
   files.forEach((file) => {
     const full = path.join(PACK_DIR, file);
@@ -52,7 +56,7 @@ const loadContentPacks = () => {
       throw new Error(`Content pack "${file}" is not valid JSON: ${error.message}`);
     }
 
-    ["documents", "services", "rules"].forEach((key) => {
+    ["documents", "services", "rules", "scholarships"].forEach((key) => {
       if (pack[key] && !Array.isArray(pack[key])) {
         throw new Error(`Content pack "${file}": "${key}" must be an array`);
       }
@@ -65,6 +69,7 @@ const loadContentPacks = () => {
         documents: (pack.documents || []).length,
         services: (pack.services || []).length,
         rules: (pack.rules || []).length,
+        scholarships: (pack.scholarships || []).length,
       },
       "Loaded content pack"
     );
